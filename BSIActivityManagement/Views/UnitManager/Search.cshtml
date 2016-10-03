@@ -1,0 +1,42 @@
+﻿@model IEnumerable<BSIActivityManagement.DAL.AMUnitOfOrg>
+<h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+<hr />
+@using (Html.BeginForm("Search", "UserPlacementRequest"))
+{
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-default BHamid FontBozorg inline-searchbox" type="submit"><i class="fa fa-search"></i></button>
+                </span>
+                <input type="text" class="form-control BNazanin FontBozorg inline-searchbox form-control-max" placeholder="جستجوی واحد سازمانی" id="AMquery" name="AMquery" value="@if (ViewBag.currentQuery != null){ Html.Raw(ViewBag.currentQuery);}">
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+}
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var unit in Model)
+            {
+            <div id="@Html.Raw("Org"+unit.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Index","UnitManager",new {UnitId = unit.Id })"><i class="fa fa-plus fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <a class="transition" href="@Url.Action("Index","UnitManager",new {UnitId = unit.Id })">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = unit.Organization.Image.Id})" /></div>
+                <div class="panel-footer text-center">@unit.Name</div>
+            </div>
+        }
+        @if (Model.Count() == 0)
+        {
+            <p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
+                برای جستجوی شما هیچ موردی یافت نشد
+            </p>
+        }
+    </div>
+</div>
+
+

@@ -1,0 +1,238 @@
+﻿@model BSIActivityManagement.ViewModel.SysAdminViewModel
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 id="Org0" class="text-center BTitrBold TitrShadow">افزودن یک گروه سازمانی جدید</h2>
+<hr />
+@{int? rowparentId = 0; }
+@foreach (var row in Model.OrgArray)
+            {
+    <div class="row rowLink">
+        <div class="col-center-content">
+            @foreach (var item in row.OrgList)
+            {
+                rowparentId = item.ParentId;
+                <div id="@Html.Raw("Org"+item.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik @if (row.SelectedOrgId != item.Id) {@Html.Raw("LinkPanelNotSelected")} else {@Html.Raw("LinkPanelSelected BTitrTGEBold ")} ">
+                    @if (row.SelectedOrgId == item.Id)
+                    {
+                        <div class="LinkPanelSettingOnTop">
+                            <a class="transition" href="@Url.Action("Delete","Organization",new {Id = item.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("Edit","Organization",new {Id = item.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("Add","OrganizationUnit",new {OrganizationId = item.Id })"><i class="fa fa-plus fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("Index","OrganizationUnit",new {OrganizationId = item.Id })"><i class="fa fa-list fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                        </div>
+                    }
+                    <a class="transition" href="@Url.Action("Index","SysAdmin", new { Org = item.Id, Prcs = Model.CurrentProcessId, Act = Model.CurrentActId })@Html.Raw("#Org"+item.ParentId.ToString())">
+                        <span class="PanelLinkSpan"></span>
+                    </a>
+                    <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Organization",new { id = item.Image.Id})" /></div>
+                    <div class="panel-footer text-center">@item.Name</div>
+                </div>
+            }
+            @if (row.OrgList.Count() == 0) { rowparentId = Model.CurrentOrgId; }
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <a class="transition" href="@Url.Action("Add","Organization",new {OrgParentId = rowparentId})">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+                <div class="panel-footer text-center">اینجا قرار بگیرد</div>
+            </div>
+        </div>
+    </div>
+                <hr />
+}
+<h2 id="Prcs0" class="text-center BTitrBold TitrShadow">افزودن یک فرآیند جدید</h2>
+<hr />
+@foreach (var row in Model.ProcessArray)
+            {
+    <div class="row rowLink">
+        <div class="col-center-content">
+            @foreach (var item in row.ProcessList)
+            {
+                rowparentId = item.ParentId;
+                <div id="@Html.Raw("Prcs"+item.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik @if (row.SelectedProcessId != item.Id) {@Html.Raw("LinkPanelNotSelected")} else {@Html.Raw("LinkPanelSelected BTitrTGEBold")} ">
+                    @if (row.SelectedProcessId == item.Id)
+                    {
+                        <div class="LinkPanelSettingOnTop">
+                            <a class="transition" href="@Url.Action("Delete","Process",new {Id = item.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("Edit","Process",new {Id = item.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("ProcessActivities", "SysAdmin",new { ProcessId = item.Id })"><i class="fa fa-list fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                        </div>
+                    }
+                    <a class="transition" href="@Url.Action("Index","SysAdmin", new { Org = Model.CurrentOrgId, Prcs = item.Id, Act = Model.CurrentActId })@Html.Raw("#Prcs"+item.ParentId.ToString())">
+                        <span class="PanelLinkSpan"></span>
+                    </a>
+                    <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Organization",new { id = item.ProcessType.ImageId})" /></div>
+                    <div class="panel-footer text-center">@item.Name</div>
+                </div>
+            }
+            @if (row.ProcessList.Count() == 0) { rowparentId = Model.CurrentProcessId; }
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <a class="transition" href="@Url.Action("Add","Process",new {ProcessParentId = rowparentId})">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+                <div class="panel-footer text-center">اینجا قرار بگیرد</div>
+            </div>
+        </div>
+    </div>
+                <hr />
+}
+<h2 id="AddProcessType" class="text-center BTitrBold TitrShadow">افزودن یک نوع جدید برای فرآیندها</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var pt in Model.ProcessTypeArray)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Delete","ProcessType",new {Id = pt.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Edit","ProcessType",new {Id = pt.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","ProcessType",new { id = pt.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@pt.Name</div>
+            </div>
+        }
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <a class="transition" href="@Url.Action("Add","ProcessType")">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+            <div class="panel-footer text-center">افزودن نوع جدید</div>
+        </div>
+    </div>
+</div>
+<hr />
+<h2 id="AddActivity" class="text-center BTitrBold TitrShadow">افزودن یک فعالیت جدید</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <a class="transition" href="@Url.Action("Add","Activity")">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+            <div class="panel-footer text-center">افزودن فعالیت جدید</div>
+        </div>
+    </div>
+</div>
+<hr />
+<h2 id="AddActivityType" class="text-center BTitrBold TitrShadow">افزودن یک نوع جدید فعالیت</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var at in Model.ActivityTypeArray)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Delete","ActivityType",new {Id = at.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Edit","ActivityType",new {Id = at.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","ActivityType",new { id = at.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@at.Name</div>
+            </div>
+        }
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <a class="transition" href="@Url.Action("Add","ActivityType")">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+            <div class="panel-footer text-center">افزودن نوع جدید</div>
+        </div>
+    </div>
+</div>
+<hr />
+<h2 id="AddActivityItemType" class="text-center BTitrBold TitrShadow">افزودن یک نوع برای اجزاء فعالیت</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var ait in Model.ActivityItemTypeArray)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Delete","ActivityItemType",new {Id = ait.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Edit","ActivityItemType",new {Id = ait.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","ActivityItemType",new { id = ait.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@ait.Name</div>
+            </div>
+        }
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <a class="transition" href="@Url.Action("Add","ActivityItemType")">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+            <div class="panel-footer text-center"> افزودن نوع جدید اجزاء فعالیت</div>
+        </div>
+    </div>
+</div>
+<hr />
+<h2 id="AddUserType" class="text-center BTitrBold TitrShadow">افزودن یک نوع کاربری جدید</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var usert in Model.UserTypeArray)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Delete","UserType",new {Id = usert.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Edit","UserType",new {Id = usert.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Index","UserTypeAccess",new {Id = usert.Id })"><i class="fa fa-key fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Add","UserTypeAccess",new {TypeId = usert.Id })"><i class="fa fa-plus-square fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","UserType",new { id = usert.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@usert.Name</div>
+            </div>
+        }
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <a class="transition" href="@Url.Action("Add","UserType")">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+            <div class="panel-footer text-center"> افزودن نوع جدید کاربری</div>
+        </div>
+    </div>
+</div>
+<hr />
+<h2 id="AddAccessType" class="text-center BTitrBold TitrShadow">افزودن یک نوع دسترسی جدید</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var accst in Model.AccessArray)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Delete","Access",new {Id = accst.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("Edit","Access",new {Id = accst.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="~/Image/AccessIcon.jpg" />
+                </div>
+                <div class="panel-footer text-center">@accst.Name</div>
+            </div>
+        }
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <a class="transition" href="@Url.Action("Add","Access")">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+            <div class="panel-footer text-center"> افزودن یک نوع دسترسی جدید</div>
+        </div>
+    </div>
+</div>
+<hr />
+<p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
+
+</p>
+
+

@@ -1,0 +1,39 @@
+﻿@model BSIActivityManagement.ViewModel.MainViewModelShowItem
+@{
+    ViewBag.Title = Model.Item.TextTitle;
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage", "Home", new { id = Model.Item.ItemType.Image.Id })" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header panel-circle main-panel-circle">
+                    @Model.Item.ItemType.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+               @Model.Item.TextTitle از فرآیند <span class="FontKheiliBozorg title-bold">@Model.Process.Name</span> در @Model.Unit.Name
+</h2><hr style="color:black;" />
+            <p class="TitrShadow BMitra text-center">
+                @Model.Item.TextBody
+            </p>
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;" href="@Url.Action("ShowActivity", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+    @for (int k = 0; k < Model.DocumentPages; k++)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <img src="@Url.Action("GetDocument", "Main", new { DocId = Model.Item.DocumentId, PageNumber = k})" style="width:100%;border-width:1px;border-style:ridge;" />
+            </div>
+        </div>
+    }

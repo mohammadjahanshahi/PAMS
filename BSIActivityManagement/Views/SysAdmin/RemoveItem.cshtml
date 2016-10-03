@@ -1,0 +1,139 @@
+﻿@model BSIActivityManagement.DAL.AMActivityItem
+@{
+    ViewBag.Title = "حذف " + Model.ItemType.Name;
+    string Pk = ViewBag.ProcessId;
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 class="text-center BTitrBold" >@ViewBag.Title</h2>
+<hr />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.TextTitle , htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.TextTitle, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.TextTitle, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TextBody, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.TextAreaFor(model => model.TextBody, new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.TextBody, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @Html.HiddenFor(model => model.ActivityId)
+        @Html.HiddenFor(model => model.ItemTypeId)
+        @Html.HiddenFor(model => model.DocumentId)
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.Status)
+        @Html.HiddenFor(model => model.OrderNumber)
+        @Html.HiddenFor(model => model.CreationTime)
+        @Html.Hidden("ProcessId", Pk)
+        <hr />
+        <div class="row text-center">
+            <div class="col-md-offset-3 col-md-6" id="uploadattachement">
+                <img src="@Url.Action("GetDocumentThumbnail", "SysAdmin",new {Id = Model.DocumentId })" class="image-upload" />
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-offset-3 col-md-6">
+                <label for="fileUpload" class="btn btn-default btn-file BTitrBold FontKoochik">
+                    انتخاب فایل <i class="fa fa-camera" aria-hidden="true"></i> <input id="fileUpload" type="file" style="display: none;" disabled = "disabled" />
+                </label>
+                <input id="btnUploadFile" type="button" value="بارگذاری و تایید" accept="image/gif, image/jpeg" class="btn btn-default BTitrBold FontKoochik" disabled = "disabled" />
+            </div>
+        </div>
+        <hr />
+        <div class="form-group">
+            <div class="row text-center">
+                <div class="col-md-offset-3 col-md-6">
+                    <label class="text-danger">
+                        آیا از حذف این بخش اطمینان دارید؟
+                    </label>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <input type="submit" value="حذف" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("ShowActivity", "SysAdmin", new {ActivityId = Model.ActivityId, ProcessId = Pk })" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition">انصراف</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    window.onload = function () {
+        $('#btnUploadFile').on('click', function () {
+            var data = new FormData();
+            var files = $("#fileUpload").get(0).files;
+            // Add the uploaded image content to the form data collection
+            if (files.length > 0) {
+                data.append("UploadedDocument", files[0]);
+            }
+            // Make Ajax request with the contentType = false, and processData = false
+            var ajaxRequest = $.ajax({
+                type: "POST",
+                url: "@Url.Action("UploadFile", "SysAdmin")",
+                contentType: false,
+                processData: false,
+                data: data,
+                success: function (response) {
+                    if (response.errormessage == '0') {
+                        $("#uploadattachement").empty();
+                        var p1 = document.createElement('p');
+                        p1.textContent = "عملیات با موفقیت انجام شد";
+                        var p2 = document.createElement('p');
+                        p2.textContent = "فایل با موفقیت بارگذاری گردید";
+                        p1.style = "color:green;"
+                        p2.style = "color:green;"
+                        var divupload = document.getElementById('uploadattachement');
+                        var imageidhidden = document.getElementById('DocumentId');
+                            imageidhidden.value = response.mediaid;
+                            var img = document.createElement('img');
+                            img.src = "@Url.Action("GetDocumentThumbnail", "SysAdmin")"+ '/?id=' + response.mediaid;
+                            img.className = "image-upload";
+                            divupload.appendChild(img);
+                            divupload.appendChild(p1);
+                            divupload.appendChild(p2);
+                    } else {
+                        $("#uploadattachement").empty();
+                        var divupload = document.getElementById('uploadattachement');
+                        var p1 = document.createElement('p');
+                        p1.textContent = "متاسفانه در عملیات بارگذاری فایل خطایی رخ داده است. لطفا مجددا تلاش نمایید.";
+                        p1.style = "color:red;"
+                        var p2 = document.createElement('p');
+                        p2.textContent = "جزئیات خطا: " + response.errormessage;
+                        p2.style = "color:red;"
+                        divupload.appendChild(p1);
+                        divupload.appendChild(p2);
+                    }
+                },
+                error: function (er) {
+                    $("#uploadattachement").empty();
+                    var divupload = document.getElementById('uploadattachement');
+                    var p1 = document.createElement('p');
+                    p1.textContent = "متاسفانه در عملیات بازگذاری فایل خطایی رخ داده است. لطفا مجددا تلاش نمایید.";
+                    var p2 = document.createElement('p');
+                    p2.textContent = "جزئیات خطا: " + er.responseText;
+                    p1.style = "color:red;"
+                    p2.style = "color:red;"
+                    divupload.appendChild(p1);
+                    divupload.appendChild(p2);
+                }
+            });
+
+            ajaxRequest.done(function (xhr, textStatus) {
+                // Do other operation
+            });
+        });
+    }
+</script>

@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNet.Identity
+@using BSIActivityManagement.Extensions
+@if (Request.IsAuthenticated)
+{
+        <li class="has-children account">
+            <a href="#0">
+                <img width="35" height="35" src="@Url.Action("GetImage","Account",new { id = User.GetImageId()})" />
+                @Html.Raw(User.Identity.GetUserName())
+            </a>
+            <ul>
+                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                {
+                @Html.AntiForgeryToken()
+                @*<li>@Html.ActionLink("تنظیمات کاربری", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage", @class = "FontMotavaset" })</li>
+                <li>@Html.ActionLink("محل خدمت", "Index", "UserPlacement", routeValues: null, htmlAttributes: new { title = "ثبت درخواست جابجایی محل خدمت", @class = "FontMotavaset" })</li>*@
+                <li><a class="FontMotavaset" href="javascript:document.getElementById('logoutForm').submit()">خروج</a></li>
+                }
+            </ul>
+        </li>
+
+}
+else
+{
+        <li>@Html.ActionLink("نام نویسی", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "BKourosh FontBozorg" })</li>
+        <li>@Html.ActionLink("ورود به سیستم", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink", @class = "BKourosh FontBozorg" })</li>
+}

@@ -1,0 +1,61 @@
+﻿@model BSIActivityManagement.DAL.AMUnitOfOrg
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+@{
+    BSIActivityManagement.DAL.AMOrganization Org = ViewBag.Organization;
+}
+<h2 class="text-center BTitrBold TitrShadow">افزودن یک واحد سازمانی جدید</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            <div class="panel-body LinkPanelBody">
+            <img class="Image-Link-250" src="@Url.Action("GetImage","OrganizationUnit",new {id=Org.ImageId})" />
+            </div>
+            <div class="panel-footer text-center">
+             @Org.Name
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IdentityCode, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.IdentityCode, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.IdentityCode, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @Html.Hidden("OrganizationId",Org.Id);
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <input type="submit" value="ایجاد واحد" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("Index","SysAdmin", new {Org = Org.Id })@Html.Raw("#Org"+Org.ParentId.ToString())" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition">انصراف</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,61 @@
+﻿@model BSIActivityManagement.DAL.AMAccess
+@{
+    ViewBag.Title = "حذف یک دسترسی";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">حذف دسترسی </h2>
+<hr />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.AccessKey, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.AccessKey, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.AccessKey, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Value, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Value, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.Value, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @Html.HiddenFor(model => model.Id)
+        <hr />
+        <div class="row text-center">
+            <div class="col-md-offset-3 col-md-6" id="uploadattachement">
+                <img src="~/Image/AccessIcon.jpg" class="image-upload" />
+            </div>
+        </div>
+        <hr />
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <input type="submit" value="حذف شود" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" @if (!ViewData.ModelState.IsValid) { @Html.Raw("disabled") ; } /> | <a class="btn btn-default BTitrBold FontKoochik box-btn-shadow" href="@Url.Action("Index","SysAdmin")@Html.Raw("#AddAccess")">انصراف</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

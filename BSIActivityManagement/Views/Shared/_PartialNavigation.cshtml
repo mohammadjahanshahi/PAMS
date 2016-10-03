@@ -1,0 +1,16 @@
+﻿@if (ViewBag.Nav != null)
+{
+    IEnumerable<BSIActivityManagement.ViewModel.NavViewModel> Navmodel = ViewBag.Nav;
+    foreach (var sec in Navmodel)
+    {
+        <ul>
+            <li class="cd-label">@sec.Title</li>
+            @foreach (var link in sec.Links)
+            {
+                <li class="bookmarks">
+                    <a href="@Url.Action(link.action,link.controller, new {UnitId = sec.UnitId })@Html.Raw(link.tag)">@link.text</a>
+                </li>
+            }
+        </ul>
+    }
+}

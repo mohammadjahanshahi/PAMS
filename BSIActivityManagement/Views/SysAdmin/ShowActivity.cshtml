@@ -1,0 +1,53 @@
+﻿@model  BSIActivityManagement.ViewModel.SysAdminModelShowActivity
+@{
+    ViewBag.Title = "مشاهده فعالیت";
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+<div class="jumbotron text-center">
+    <h2 class="BTitrBold TitrShadow fontkheilibozorg">
+        @ViewBag.Title
+    </h2>
+        <a style="position:absolute;left:10px;" href="@Url.Action("ProcessActivities","SysAdmin",new {ProcessId = Model.ProcessId })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+@if (Model.ActivityItemGropus.Count() == 0)
+{
+    <p class="text-center">
+        هیچ بخشی برای نمایش موجود نیست
+    </p>
+}
+<div class="panel-group">
+    @foreach (var t in Model.ActivityItemGropus)
+    {
+        <div class="panel panel-default">
+            <div id="@Html.Raw("grouptype"+t.Type.Id)" class="panel-heading">
+                @t.Type.Name
+            </div>
+            <div class="panel-body">
+                @foreach (var item in t.Items)
+                {
+                        <div id="@Html.Raw("item"+item.Id)" class="panel panel-primary LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                            <div class="LinkPanelSettingOnTop text-center">
+                                <a class="transition" href="@Url.Action("RemoveItem","SysAdmin",new {ItemId = item.Id , ProcessId = Model.ProcessId})"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                                <a class="transition" href="@Url.Action("EditItem","SysAdmin",new {ItemId = item.Id , ProcessId = Model.ProcessId })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            </div>
+                            <a class="transition" href="@Url.Action("ShowItem","SysAdmin", new {ItemId = item.Id, ProcessId = Model.ProcessId })">
+                                <span class="PanelLinkSpan"></span>
+                            </a>
+                            <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = item.ItemType.Image.Id})" /></div>
+                            <div class="panel-footer BYekan">
+                                @item.TextTitle
+                            </div>
+                        </div>
+                }
+                <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                    <a class="transition" href="@Url.Action("AddItem","SysAdmin",new {ActivityId = Model.ActivityId , ItemTypeId = t.Type.Id, ProcessId = Model.ProcessId} )">
+                        <span class="PanelLinkSpan"></span>
+                    </a>
+                    <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>
+                    <div class="panel-footer text-center">افزودن @t.Type.Name</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

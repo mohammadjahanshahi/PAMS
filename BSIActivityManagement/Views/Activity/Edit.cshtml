@@ -1,0 +1,307 @@
+﻿@model BSIActivityManagement.ViewModel.AddActivityViewModel
+@{
+    ViewBag.Title = "ویرایش فعالیت";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+@{
+    IEnumerable<BSIActivityManagement.DAL.AMActivityType> ActivityTypes = ViewBag.ActivityTypes;
+    IEnumerable<BSIActivityManagement.ViewModel.JsonOrganizationViewModel> Organizations = ViewBag.AllOrganizations;
+    IEnumerable<BSIActivityManagement.ViewModel.JsonProcessViewModel> Processes = ViewBag.AllProcesses;
+}
+<h2 class="text-center BTitrBold TitrShadow">افزودن یک فعالیت جدید</h2>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    انتخاب نوع فعالیت
+</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var at in ActivityTypes)
+        {
+            <div id="at_@at.Id" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik @if (Model != null && Model .TypeId == at.Id) {@Html.Raw("LinkPanelSelected BTitrTGEBold")} else {@Html.Raw("LinkPanelNotSelected")}">
+                <div class="LinkPanelSettingOnTop">
+                    <a><i id="select_icon_@at.Id" class="fa fa-check-circle-o fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <a href="javascript:selectlinkpaneltype('@at.Id')">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","Process",new { id = at.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@at.Name</div>
+            </div>
+        }
+    </div>
+</div>
+<div class="row text-center">
+    @Html.ValidationMessageFor(model => model.TypeId, "", new { @class = "text-danger" })
+</div>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    انتخاب سازمانهای دارنده این فعالیت
+</h2>
+<hr />
+<div id="OrgChildRow_P_Root">
+
+</div>
+<div class="row text-center">
+    @Html.ValidationMessageFor(model => model.SelectedOrganizationStr, "", new { @class = "text-danger" })
+</div>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    انتخاب فرآیندهای دارنده این فعالیت
+</h2>
+<hr />
+<div id="ProcessChildRow_P_Root">
+
+</div>
+<div class="row text-center">
+    @Html.ValidationMessageFor(model => model.SelectedProcessesStr, "", new { @class = "text-danger" })
+</div>
+
+<hr />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.TypeId)
+        @Html.HiddenFor(model => model.SelectedOrganizationStr)
+        @Html.HiddenFor(model => model.SelectedProcessesStr)
+        <hr />
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <input type="submit" value="ویرایش فعالیت" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("Index","SysAdmin")@Html.Raw("#AddActivity")" class="btn btn-default BTitrBold FontKoochik box-btn-shadow">انصراف</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    var SelectedProcessType = @if (Model == null) {@Html.Raw("0;")} else { @Html.Raw(Model.TypeId.ToString()+";")}
+    var jsonOrganizationList = @Html.Raw(Json.Encode(Organizations));
+    var jsonProcessList = @Html.Raw(Json.Encode(Processes));
+    $(document).ready(function(){
+        ShowOrganizationChilds(0,0);
+        ShowProcessChilds(0,0);
+        selectlinkpaneltype(SelectedProcessType);
+    });
+    function selectlinkpaneltype(linkid)
+    {
+        if (SelectedProcessType > 0)
+        {
+            $("#at_" + SelectedProcessType).removeClass('LinkPanelSelected').removeClass('BTitrTGEBold').addClass('LinkPanelNotSelected');
+            $("#select_icon_" + SelectedProcessType).removeClass('TickSelected');
+        }
+        $("#select_icon_" + linkid).addClass('TickSelected');
+        $("#at_" + linkid).removeClass('LinkPanelNotSelected').addClass('LinkPanelSelected').addClass('BTitrTGEBold');
+        SelectedProcessType = linkid;
+        $("#TypeId").val(linkid);
+        var k= $("#TypeId").val();
+    }
+    function getOrganizationChilds(id){
+        var newArray = [];
+        for(var i=0;i<jsonOrganizationList.length;i++)
+        {
+            var item = jsonOrganizationList[i];
+            if(item.ParentId == id) {
+                newArray.push(item);
+            }
+        }
+        return newArray;
+    }
+
+    function getOrganizationSiblings(pid)
+    {
+        var newArray = [];
+        for(var i=0;i<jsonOrganizationList.length;i++)
+        {
+            var item = jsonOrganizationList[i];
+            if(item.ParentId == pid) {
+                newArray.push(item);
+            }
+        }
+        return newArray;
+    }
+
+
+
+    function MakeRow(id,imageid,name,parentId){
+        var currentselectedorgs = $("#SelectedOrganizationStr").val();
+        var isselected = '';
+        if(currentselectedorgs.includes(id)) isselected = 'TickSelected';
+        var str = "<div id='panelorg_"+id+"' class='panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelNotSelected'>\
+                    <div class='LinkPanelSettingOnTop'>\
+                        <a href='javascript:selectorg("+id+")'><i id='iconselecedtorg_"+id+"' class='fa fa-check-circle-o fa-2x BtnFontAwesomeTopLinkPanel "+isselected+"'></i></a></div>\
+                        <a href='javascript:ShowOrganizationChilds("+id+","+parentId+")'><span class='PanelLinkSpan'></span></a>\
+                    <div class='panel-body LinkPanelBody'><img class='Image-Link-250' src='@Url.Action("GetImage", "Organization")?id="+imageid+"' /></div><div class='panel-footer text-center'>"+name+"</div></div>";
+        return str;
+    }
+
+    function ShowOrganizationChilds(id,pid)
+    {
+        var childs = getOrganizationChilds(id);
+        var childNumber = childs.length;
+        var siblings = getOrganizationSiblings(pid);
+        var siblingNumber = siblings.length;
+        for(var j=0;j<siblingNumber;j++){
+            deselectlinkpanelorg(siblings[j].Id);
+        }
+        selectlinkpanelorg(id);
+        if(id!=0) $("#OrgChildRow_P_"+pid).empty();
+
+        if(childNumber > 0)
+        {
+            var nodestring = "<div class='row rowLink'>\
+                    <div class='col-center-content'>";
+            for (var i = 0; i < childNumber; i++) {
+                nodestring += MakeRow(childs[i].Id,childs[i].ImageId,childs[i].Name,childs[0].ParentId);
+            }
+            nodestring += "</div></div>";
+            var divparent = document.getElementById('OrgChildRow_P_'+pid);
+            if(id == 0) divparent = document.getElementById('OrgChildRow_P_Root');
+            var div = document.createElement('div');
+            div.id = "OrgChildRow_P_"+id;
+            divparent.innerHTML = nodestring;
+            var elements = divparent.childNodes;
+            divparent.appendChild(div);
+        }
+    }
+
+
+
+    function selectlinkpanelorg(linkid)
+    {
+        $("#panelorg_" + linkid).removeClass('LinkPanelNotSelected').addClass('LinkPanelSelected').addClass('BTitrTGEBold');
+    }
+
+    function deselectlinkpanelorg(linkid)
+    {
+        $("#panelorg_" + linkid).removeClass('LinkPanelSelected').removeClass('BTitrTGEBold').addClass('LinkPanelNotSelected');
+    }
+
+    function selectorg(id)
+    {
+        var currentselectedorgs = $("#SelectedOrganizationStr").val();
+        var selectedorgarr = currentselectedorgs.split(';');
+        if(currentselectedorgs.includes(id))
+        {
+            currentselectedorgs = currentselectedorgs.replace(id+";","");
+            $("#SelectedOrganizationStr").val(currentselectedorgs);
+            $("#iconselecedtorg_" + id).removeClass('TickSelected');
+        }else{
+            currentselectedorgs += id+";";
+            $("#SelectedOrganizationStr").val(currentselectedorgs);
+            $("#iconselecedtorg_" + id).addClass('TickSelected');
+        }
+    }
+    //////Processes
+    function getProcessChilds(id){
+        var newArray = [];
+        for(var i=0;i<jsonProcessList.length;i++)
+        {
+            var item = jsonProcessList[i];
+            if(item.ParentId == id) {
+                newArray.push(item);
+            }
+        }
+        return newArray;
+    }
+
+    function getProcessSiblings(pid)
+    {
+        var newArray = [];
+        for(var i=0;i<jsonProcessList.length;i++)
+        {
+            var item = jsonProcessList[i];
+            if(item.ParentId == pid) {
+                newArray.push(item);
+            }
+        }
+        return newArray;
+    }
+
+    function MakeRowProcess(id,imageid,name,parentId){
+        var currentselectedprocesses = $("#SelectedProcessesStr").val();
+        var isselected = '';
+        if(currentselectedprocesses.includes(id)) isselected = 'TickSelected';
+        var str = "<div id='panelprocess_"+id+"' class='panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelNotSelected'>\
+                    <div class='LinkPanelSettingOnTop'>\
+                        <a href='javascript:selectprocess("+id+")'><i id='iconselecedtprocess_"+id+"' class='fa fa-check-circle-o fa-2x BtnFontAwesomeTopLinkPanel "+isselected+"'></i></a></div>\
+                        <a href='javascript:ShowProcessChilds("+id+","+parentId+")'><span class='PanelLinkSpan'></span></a>\
+                    <div class='panel-body LinkPanelBody'><img class='Image-Link-250' src='@Url.Action("GetImage", "Process")?id="+imageid+"' /></div><div class='panel-footer text-center'>"+name+"</div></div>";
+        return str;
+    }
+
+    function ShowProcessChilds(id,pid)
+    {
+        var childs = getProcessChilds(id);
+        var childNumber = childs.length;
+        var siblings = getProcessSiblings(pid);
+        var siblingNumber = siblings.length;
+        for(var j=0;j<siblingNumber;j++){
+            deselectlinkpanelprocess(siblings[j].Id);
+        }
+        selectlinkpanelprocess(id);
+        if(id!=0) $("#ProcessChildRow_P_"+pid).empty();
+
+        if(childNumber > 0)
+        {
+            var nodestring = "<div class='row rowLink'>\
+                    <div class='col-center-content'>";
+            for (var i = 0; i < childNumber; i++) {
+                nodestring += MakeRowProcess(childs[i].Id,childs[i].ImageId,childs[i].Name,childs[0].ParentId);
+            }
+            nodestring += "</div></div>";
+            var divparent = document.getElementById('ProcessChildRow_P_'+pid);
+            if(id == 0) divparent = document.getElementById('ProcessChildRow_P_Root');
+            var div = document.createElement('div');
+            div.id = "ProcessChildRow_P_"+id;
+            divparent.innerHTML = nodestring;
+            var elements = divparent.childNodes;
+            divparent.appendChild(div);
+        }
+    }
+
+    function selectlinkpanelprocess(linkid)
+    {
+        $("#panelprocess_" + linkid).removeClass('LinkPanelNotSelected').addClass('LinkPanelSelected').addClass('BTitrTGEBold');
+    }
+
+    function deselectlinkpanelprocess(linkid)
+    {
+        $("#panelprocess_" + linkid).removeClass('LinkPanelSelected').removeClass('BTitrTGEBold').addClass('LinkPanelNotSelected');
+    }
+
+    function selectprocess(id)
+    {
+        var currentselectedprocesses = $("#SelectedProcessesStr").val();
+        if(currentselectedprocesses.includes(id))
+        {
+            currentselectedprocesses = currentselectedprocesses.replace(id+";","");
+            $("#SelectedProcessesStr").val(currentselectedprocesses);
+            $("#iconselecedtprocess_" + id).removeClass('TickSelected');
+        }else{
+            currentselectedprocesses += id+";";
+            $("#SelectedProcessesStr").val(currentselectedprocesses);
+            $("#iconselecedtprocess_" + id).addClass('TickSelected');
+        }
+    }
+</script>

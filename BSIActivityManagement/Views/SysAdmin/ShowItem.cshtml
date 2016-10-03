@@ -1,0 +1,23 @@
+﻿@model BSIActivityManagement.ViewModel.SysAdminViewModelShowItem
+@{
+    ViewBag.Title = Model.Item.TextTitle;
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<div class="jumbotron">
+    <h3 class="text-center BTitrBold TitrShadow">
+        @Model.Item.TextTitle
+    </h3>
+    <p class="LineTaraz BMitra TitrShadow">
+        @Model.Item.TextBody
+    </p>
+        <a style="position:absolute;left:10px;" href="@Url.Action("ShowActivity","SysAdmin",new {ProcessId = Model.ProcessId, ActivityId = Model.ActivityId })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+    @for (int k = 0; k < Model.DocumentPages; k++)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <img src="@Url.Action("GetDocument", "SysAdmin", new { DocId = Model.Item.DocumentId, PageNumber = k})" style="width:100%;border-width:1px;border-style:ridge;" />
+            </div>
+        </div>
+    }

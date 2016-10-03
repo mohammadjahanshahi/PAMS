@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - سیستم جامع مدیریت فرآیندی</title>
+    @Styles.Render("~/Content/persiancss")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Styles.Render("~/Content/SideBar")
+</head>
+<body>
+    <header class="cd-main-header BTitrBold FontBozorg">
+        @Html.ActionLink("سیستم مدیریت فرآیندی", "Index", "Home", new { area = "" }, new { @class = "cd-logo BTitrTGEBold FontKoochik LogoColor" })
+        <div class="cd-search is-hidden">
+            <form action="#0">
+                <input type="search" placeholder="Search...">
+            </form>
+        </div> <!-- cd-search -->
+        <a href="#0" class="cd-nav-trigger"><span></span></a>
+        <nav class="cd-nav">
+            <ul class="cd-top-nav">
+                @Html.Partial("_LoginPartial")
+            </ul>
+        </nav>
+    </header> <!-- .cd-main-header -->
+
+    <main class="cd-main-content BTitrBold">
+        <nav class="cd-side-nav is-fixed">
+            @Html.Partial("_PartialNavigation")
+        </nav>
+        <div class="content-wrapper">
+            <hr />
+            @RenderBody()
+        </div> <!-- .content-wrapper -->
+    </main> <!-- .cd-main-content -->
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/SideBar")
+    @RenderSection("scripts", required: false)
+    <script>
+        $(document).ready(function () {
+            $(".content-wrapper").fadeIn(700);
+            $("a.transition").click(function (event) {
+                event.preventDefault();
+                linkLocation = this.href;
+                $(".content-wrapper").fadeOut(500, redirectPage);
+            });
+
+            function redirectPage() {
+                window.location = linkLocation;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+﻿@model BSIActivityManagement.ViewModel.UserTypeUsersViewModel
+@{
+    ViewBag.Title = "انتخاب نوع کاربری";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+<hr />
+<h3 class="text-center BTitrBold TitrShadow">کاربر انتخاب شده</h3>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+            <div id="@Html.Raw("User"+Model.User.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("Index","UserTypeManager")"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <a class="transition" href="@Url.Action("Index","UserTypeManager")">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = Model.User.Image.Id})" /></div>
+                <div class="panel-footer text-center">@Model.User.FirstName @Model.User.Lastname</div>
+            </div>
+    </div>
+</div>
+<h3 class="text-center BTitrBold TitrShadow">انتخاب نوع کاربری</h3>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach(var type in Model.Types)
+        { 
+        <div id="@Html.Raw("type"+type.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+            <div class="LinkPanelSettingOnTop">
+                <a class="transition" href="@Url.Action("Add","UserTypeManager", new {UserId = Model.User.Id, TypeId = type.Id })"><i class="fa fa-check-square fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+            </div>
+            <a class="transition" href="@Url.Action("Add","UserTypeManager", new {UserId = Model.User.Id, TypeId = type.Id })">
+                <span class="PanelLinkSpan"></span>
+            </a>
+            <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = type.Image.Id})" /></div>
+            <div class="panel-footer text-center">@type.Name</div>
+        </div>
+        }
+    </div>
+</div>

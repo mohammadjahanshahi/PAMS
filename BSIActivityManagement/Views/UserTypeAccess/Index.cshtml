@@ -1,0 +1,52 @@
+﻿@model IEnumerable<BSIActivityManagement.DAL.AMUserTypeAccessList>
+@{
+    ViewBag.Title = "مشاهده تمام دسترسیها برای انواع کاربریها";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+<hr />
+<div class="table-responsive">
+    <table class="table  table-striped">
+        <tr class="text-info">
+            <th>
+                نوع کاربری
+            </th>
+            <th>
+                تصویر
+            </th>
+            <th>
+                نام مجوز دسترسی
+            </th>
+            <th>
+                کلید دسترسی
+            </th>
+            <th>
+                گزینه ها
+            </th>
+        </tr>
+        @foreach(var row in Model)
+        {
+            <tr>
+                <td>
+                    @row.UserType.Name
+                </td>
+                <td>
+                    <img height="30" src="@Url.Action("GetImage","Home",new {Id = row.UserType.ImageId })"/>
+                </td>
+                <td>
+                    @row.Access.Name
+                </td>
+                <td>
+                    @row.Access.AccessKey
+                </td>
+                <td>
+                    <a href="@Url.Action("Add","UserTypeAccess",new {TypeId = row.UserTypeId })" class="btn btn-default"><i class="fa fa-plus-square fa-fw fa-2x"></i></a>
+                    <a href="@Url.Action("Remove","UserTypeAccess",new {TypeId = row.UserTypeId })" class="btn btn-default"><i class="fa fa-minus-square fa-fw fa-2x"></i></a>
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>
+

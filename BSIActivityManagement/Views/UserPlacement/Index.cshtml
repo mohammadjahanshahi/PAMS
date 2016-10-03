@@ -1,0 +1,44 @@
+﻿@model IEnumerable<BSIActivityManagement.ViewModel.UserPlacementViewModel>
+@{
+    ViewBag.Title = "محل خدمت کاربر";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+@foreach (var unit in Model)
+{
+    <h2 class="text-center BTitrBold TitrShadow">درخواستهای کاربران برای ورود به @unit.AmUnit.Name</h2>
+    <hr />
+    <div class="row rowLink">
+        <div class="col-center-content">
+            @if(unit.UsersWaitingForJoin.Count() == 0)
+            {
+                <p class="BNazanin">
+                    هیچ کاربری برای ورود به این واحد درخواست نداده است.
+                </p>
+            }
+            @foreach (var user in unit.UsersWaitingForJoin)
+            {
+                <div id="@Html.Raw("User_"+user.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+                    <div class="LinkPanelSettingOnTop">
+                        <a class="transition" href="@Url.Action("Accept", "UserPlacement", new { UnitId = unit.AmUnit.Id, UserId = user.Id, ProcessId = 1 })"><i class="fa fa-check fa-fw fa-2x ad-green BtnFontAwesomeTopLinkPanel"></i></a>
+                        <a class="transition" href="@Url.Action("Reject", "UserPlacement", new { UnitId = unit.AmUnit.Id, UserId = user.Id})"><i class="fa fa-ban fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    </div>
+                    <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = user.Image.Id})" /></div>
+                    <div class="panel-footer text-center">@user.FirstName @user.Lastname</div>
+                </div>
+            }
+        </div>
+    </div>
+}
+@if (Model.Count() == 0)
+{
+    <div class="row rowLink centralrow">
+        <div class="col-center-content centralmessage">
+            <p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
+                کاربری شما در هیچ سازمانی ثبت نشده است لطفا با مدیر سیستم تماس بگیرید
+            </p>
+            </div>
+    </div>
+}
+
+
+

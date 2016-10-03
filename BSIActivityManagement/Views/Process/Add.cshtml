@@ -1,0 +1,118 @@
+﻿@model BSIActivityManagement.DAL.AMProcess
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+@{
+    BSIActivityManagement.DAL.AMProcess ParentProcess = ViewBag.ParentProcess;
+    IEnumerable<BSIActivityManagement.DAL.AMProcessType> ProcessTypes = ViewBag.ProcessTypes;
+}
+<h2 class="text-center BTitrBold TitrShadow">افزودن یک فرآیند جدید</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+            @if (ParentProcess == null)
+            {
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="~/Image/Link250x250.jpg" />
+                </div>
+                <div class="panel-footer text-center">
+                    شاخه اصلی فرآیندها
+                </div>
+            }
+            else
+            {
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","Process",new {id=ParentProcess.ProcessType.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">
+                    @ParentProcess.Name
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<h2 class="text-center BTitrBold TitrShadow">
+    انتخاب نوع فرآیند
+</h2>
+<hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var pt in ProcessTypes)
+        {
+            <div id="pt_@pt.Id" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik @if (Model != null && Model.ProcessTypeId == pt.Id) {@Html.Raw("LinkPanelSelected BTitrTGEBold")} else {@Html.Raw("LinkPanelNotSelected")}">
+                <a href="javascript:selectlinkpaneltype('@pt.Id')">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","Process",new { id = pt.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@pt.Name</div>
+            </div>
+        }
+    </div>
+</div>
+@Html.ValidationMessageFor(model => model.ProcessTypeId, "", new { @class = "text-danger" })
+<hr />
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @if(ParentProcess != null)
+        {
+            @Html.Hidden("ParentId", ParentProcess.Id);
+        }
+        else {@Html.Hidden("ParentId", 0);
+        }
+        @Html.HiddenFor(model => model.ProcessTypeId)
+        <hr />
+        
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    @{
+                        string ParentOrgId = "0";
+                        string GrandParentId = "0";
+                        if (ParentProcess != null)
+                        {
+                            ParentOrgId = ParentProcess.Id.ToString();
+                            GrandParentId = ParentProcess.ParentId.ToString();
+                        }
+
+                    }
+                    <input type="submit" value="ایجاد فرآیند" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("Index","SysAdmin", new {Prcs = ParentOrgId })@Html.Raw("#Prcs"+GrandParentId)" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition">انصراف</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+<script>
+    var SelectedProcessType = 0;
+    function selectlinkpaneltype(linkid)
+    {
+        if (SelectedProcessType > 0)
+            $("#pt_" + SelectedProcessType).removeClass('LinkPanelSelected').removeClass('BTitrTGEBold').addClass('LinkPanelNotSelected');
+        $("#pt_" + linkid).removeClass('LinkPanelNotSelected').addClass('LinkPanelSelected').addClass('BTitrTGEBold');
+        SelectedProcessType = linkid;
+        $('#ProcessTypeId').val(linkid);
+    }
+</script>

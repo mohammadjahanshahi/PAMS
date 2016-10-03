@@ -1,0 +1,12 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "خطایی غیر قابل پیش بینی رخ داده است.";
+}
+
+<h1 class="text-danger">خطا در عملیات</h1>
+<h2 class="text-danger">از اینکه به این صفحه انتقال داده شده اید متاسفیم. ظاهرا خطایی ناخواسته در عملیات رخ داده است. لطفا مجددا تلاش نمایید.</h2>
+<h2 class="text-danger">
+    @if(@ViewBag.Message != null) {@ViewBag.Message }
+</h2>
+

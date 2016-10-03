@@ -1,0 +1,33 @@
+﻿@model BSIActivityManagement.ViewModel.MainViewModelUsers 
+@{
+    ViewBag.Title = "کاربرهای یک واحد سازمانی";
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+<div class="jumbotron">
+    <h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+</div>
+
+@if (Model.UnitUsers.Count() == 0)
+{
+    <p class="text-center">
+        هیچ کاربری برای نمایش موجود نیست
+    </p>
+}
+<div class="row">
+    @foreach (var u in Model.UnitUsers)
+    {
+        <div class="col-sm-4">
+            <div id="@Html.Raw("User"+u.Id)" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop">
+                    <a class="transition" href="@Url.Action("ModifyUserProcesses","Main",new {UnitId = Model.UnitId, UserId = u.Id})"><i class="fa fa-cogs fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <a class="transition" href="">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = u.Image.Id})" /></div>
+                <div class="panel-footer text-center">@u.FirstName @u.Lastname</div>
+            </div>
+        </div>
+    }
+</div>

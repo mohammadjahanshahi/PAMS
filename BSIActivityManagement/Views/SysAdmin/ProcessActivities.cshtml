@@ -1,0 +1,46 @@
+﻿@model  BSIActivityManagement.ViewModel.SysAdminViewModelProcessActivities
+@{
+    ViewBag.Title = "فعالیتهای فرآیند";
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+<div class="jumbotron">
+    <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+        @ViewBag.Title
+    </h2>
+    <a style="position:absolute;left:10px;" href="@Url.Action("Index","SysAdmin")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+@if (Model.ActivityGropus.Count() == 0)
+{
+    <p class="text-center">
+        هیچ فعالیتی برای نمایش موجود نیست
+    </p>
+}
+<div class="panel-group">
+    @foreach (var t in Model.ActivityGropus)
+    {
+        <div class="panel panel-default">
+            <div id="@Html.Raw("grouptype" + t.Type.Id)" class="panel-heading">
+                @t.Type.Name
+            </div>
+            <div class="panel-body">
+                @foreach (var act in t.Activities)
+                {
+                    <div id="@Html.Raw("Act" + act.Id)" class="panel panel-primary LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                        <div class="LinkPanelSettingOnTop">
+                            <a class="transition" href="@Url.Action("Delete", "Activity", new { ActivityId = act.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("Edit", "Activity", new { ActivityId = act.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                        </div>
+                        <a class="transition" href="@Url.Action("ShowActivity", "SysAdmin", new { ActivityId = act.Id, ProcessId = Model.ProcessId })">
+                            <span class="PanelLinkSpan"></span>
+                        </a>
+                        <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage", "Home", new { id = act.Type.Image.Id })" /></div>
+                        <div class="panel-footer text-center BYekan">
+                            @act.Name
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

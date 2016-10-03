@@ -1,0 +1,70 @@
+﻿@model  BSIActivityManagement.ViewModel.MainViewModelProcessActivities
+@{
+    ViewBag.Title = "فعالیتهای فرآیند";
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = Model.Process.ProcessType.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header panel-circle  main-panel-circle">
+                    @Model.Process.ProcessType.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                فرآیند <span class="FontKheiliBozorg title-bold">@Model.Process.Name</span> از @Model.Unit.Name
+            </h2><hr style="color:black;" />
+            <p class="TitrShadow BMitra text-center">
+                @Model.Process.Description
+            </p>
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;" href="@Url.Action("UnitProcesses", "Main", new {UnitId = Model.Unit.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+@if (Model.ActivityGropus.Count() == 0)
+{
+    <p class="text-center">
+        هیچ فعالیتی برای نمایش موجود نیست
+    </p>
+}
+else {
+<ul class="nav nav-tabs BTraffic">
+    @{bool firstone = true;}
+@foreach (var t in Model.ActivityGropus)
+{
+    <li @if (firstone) {@Html.Raw("class='active'") } ><a data-toggle="tab" href="#@Html.Raw("grouptype"+t.Type.Id)">@t.Type.Name</a></li>
+    firstone = false;
+}
+</ul>
+
+
+<div class="tab-content">
+    @{ bool firsttab = true;}
+    @foreach (var t in Model.ActivityGropus)
+    {
+        <div id="@Html.Raw("grouptype"+t.Type.Id)" class='tab-pane fade @if (firsttab) {@Html.Raw("in active")} ' style="padding-top:30px;">
+                @foreach (var act in t.Activities)
+                {
+                    <div id="@Html.Raw("Act"+act.Id)" class="panel panel-primary LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                        <div class="panel-heading text-center BYekan">
+                            @act.Name
+                        </div>
+                        <a class="transition" href="@Url.Action("ShowActivity","Main", new {ActivityId = act.Id, UnitId = Model.Unit.Id, ProcessId = Model.Process.Id })">
+                            <span class="PanelLinkSpan"></span>
+                        </a>
+                        <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = act.Type.Image.Id})" /></div>
+                    </div>
+                }
+        </div>
+        firsttab = false;
+    }
+</div>
+        }
+
+

@@ -1,0 +1,56 @@
+﻿@model BSIActivityManagement.Models.RegisterViewModel
+@{
+    ViewBag.Title = "ثبت نام کاربر جدید";
+    Layout = "~/Views/Shared/_PersianLayoutLogout.cshtml";
+}
+
+<h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+<hr />
+@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <div class="col-md-6">
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.FirstName, new { @class = "col-md-2 col-md-offset-2 control-label BHamid FontBozorg" })
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.LastName, new { @class = "col-md-2 col-md-offset-2 control-label BHamid FontBozorg" })
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 col-md-offset-2 control-label BHamid FontBozorg" })
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Password, new { @class = "col-md-2 col-md-offset-2 control-label BHamid FontBozorg" })
+        <div class="col-md-6">
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 col-md-offset-2 control-label BHamid FontBozorg" })
+        <div class="col-md-6">
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-4 col-md-6 text-center">
+            <input type="submit" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" value="ثبت نام" /> | <a href="@Url.Action("Index","Home")" class="btn btn-default BTitrBold FontKoochik box-btn-shadow">انصراف</a>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

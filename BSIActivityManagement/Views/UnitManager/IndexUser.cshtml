@@ -1,0 +1,26 @@
+﻿
+@{
+    ViewBag.Title = "جستجوی کاربری";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+<hr />
+@using (Html.BeginForm("SearchUser", "UnitManager"))
+{
+    @Html.Hidden("UnitId")
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-default BHamid FontBozorg inline-searchbox" type="submit"><i class="fa fa-search"></i></button>
+                </span>
+                <input type="text" class="form-control BNazanin FontBozorg inline-searchbox form-control-max" placeholder="جستجوی کاربر" id="AMquery" name="AMquery" value="">
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+}
+<hr />
+<p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
+    لطفا برای یافتن یک کاربر ابتدا نام و نام خانوادگی یا کد شناسه سازمانی کاربر را جستجو نمایید
+</p>

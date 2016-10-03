@@ -1,0 +1,54 @@
+﻿@model BSIActivityManagement.ViewModel.AddUnitManagerViewModel
+
+@{
+    ViewBag.Title = "انتخاب مسئول واحد";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<div class="row rowLink">
+    <div class="col-center-content">
+        <div id="@Html.Raw("Org"+Model.SelectedUnit.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+            <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = Model.SelectedUnit.Organization.Image.Id})" /></div>
+            <div class="panel-footer text-center">@Model.SelectedUnit.Name</div>
+        </div>
+
+        <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+            <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="~/Image/LinkIcon.png" /></div>
+        </div>
+
+        <div id="@Html.Raw("User"+Model.SelectedUser.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold ">
+            <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = Model.SelectedUser.Image.Id})" /></div>
+            <div class="panel-footer text-center">@Model.SelectedUser.FirstName @Model.SelectedUser.Lastname</div>
+        </div>
+    </div>
+</div>
+<div class="row rowLink">
+    <div class="col-center-content">
+        @using (Html.BeginForm("AddInto","UnitManager"))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <div class="col-md-offset-3 col-md-6">
+                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                </div>
+            </div>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-offset-3 col-md-6">
+                    <p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
+                        آیا از افزودن @Model.SelectedUser.FirstName @Model.SelectedUser.Lastname به @Model.SelectedUnit.Name به عنوان مسئول واحد اطمینان دارید؟
+                    </p>
+                </div>
+            </div>
+            @Html.Hidden("SelectedUnit_Id",Model.SelectedUnit.Id)
+            @Html.Hidden("SelectedUser_Id", Model.SelectedUser.Id)
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-12" style="text-align:center;">
+                        <input type="submit" value="تایید" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("Index","UnitManager")" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition">انصراف</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

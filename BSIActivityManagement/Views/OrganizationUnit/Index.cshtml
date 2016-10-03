@@ -1,0 +1,22 @@
+﻿@model IEnumerable<BSIActivityManagement.DAL.AMUnitOfOrg>
+@{
+    ViewBag.Title = "مشاهده لیست واحدها";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+<h2 id="Org0" class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+<hr />
+    <div class="row rowLink">
+        <div class="col-center-content">
+            @foreach (var row in Model)
+            {
+                <div id="@Html.Raw("Unit"+row.Id.ToString())" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik LinkPanelSelected BTitrTGEBold">
+                        <div class="LinkPanelSettingOnTop">
+                            <a class="transition" href="@Url.Action("Delete","OrganizationUnit",new {Id = row.Id })"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                            <a class="transition" href="@Url.Action("Edit","OrganizationUnit",new {Id = row.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                        </div>
+                    <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","OrganizationUnit",new { id = row.Organization.ImageId})" /></div>
+                    <div class="panel-footer text-center">@row.Name</div>
+                </div>
+            }
+        </div>
+    </div>

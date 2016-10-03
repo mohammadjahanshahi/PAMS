@@ -1,0 +1,44 @@
+﻿@model BSIActivityManagement.DAL.AMProcess
+@{
+    ViewBag.Title = "حذف یک فرآیند";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">حذف فرآیند</h2>
+<hr />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2 col-md-offset-2 BHamid FontBozorg" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control form-control-max BNazanin FontBozorg", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <hr />
+        <div class="row text-center">
+            <div class="col-md-offset-3 col-md-6" id="uploadattachement">
+                <img src="@Url.Action("GetImage","Organization")@Html.Raw("/?id="+Model.ProcessType.ImageId)" class="image-upload" />
+            </div>
+        </div>
+        <hr />
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" style="text-align:center;">
+                    <input type="submit" value="حذف شود" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" @if (!ViewData.ModelState.IsValid) { @Html.Raw("disabled") ; } /> | <a class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition" href="@Url.Action("Index","SysAdmin",new {Prcs = Model.Id })@Html.Raw("#Prcs"+Model.ParentId)">انصراف</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

@@ -1,0 +1,42 @@
+﻿@model BSIActivityManagement.ViewModel.MainViewModelUnit
+@{
+    ViewBag.Title = "واحد های سازمانی مربوط به شما";
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<div class="jumbotron">
+    <h2 id="AddActivityType" class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+</div>
+
+<hr />
+@if (Model.Units.Count() == 0)
+{
+    <p class="text-center">
+        ظاهرا شما در هیچ واحد سازمانی ثبت نشده اید.
+        <hr />
+        <a class="btn btn-default" href="@Url.Action("Index","UserPlacementRequest")">درخواست ورود به یک واحد</a>
+    </p>
+}
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var unit in Model.Units)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <a class="transition" href="@Url.Action("UnitProcesses","Main", new { UnitId = unit.Id})">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = unit.Organization.ImageId})" alt="@unit.IdentityCode - @unit.Description"/>
+                </div>
+                <div class="panel-footer text-center">@unit.Name</div>
+            </div>
+        }
+    </div>
+</div>
+@if (Model.Units.Count() > 1)
+{
+<p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
+    شما به بیش از یک واحد سازمانی دسترسی دارید، لطفا یکی واحدها را انتخاب نمایید.
+</p>
+}

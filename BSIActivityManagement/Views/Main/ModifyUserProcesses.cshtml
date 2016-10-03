@@ -1,0 +1,65 @@
+﻿@model BSIActivityManagement.ViewModel.MainViewModelUserProcesses
+@{
+    ViewBag.Title = "فرآیندهای یک کاربر در واحد سازمانی";
+    ViewBag.Nav = Model.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+<div class="jumbotron">
+    <h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+</div>
+<h3 class="text-center BTitrBold TitrShadow">
+    فرآیندهای قابل ثبت برای کاربر
+</h3>
+<hr />
+@if (Model.RemainUnitProcesses.Count() == 0)
+{
+    <p class="text-center">
+        هیچ فرایندی برای نمایش موجود نیست
+    </p>
+}
+<div class="row">
+    @foreach (var p in Model.RemainUnitProcesses)
+    {
+        <div class="col-sm-4">
+            <div id="@Html.Raw("process"+p.Id)" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop text-center">
+                    <a class="transition" href="@Url.Action("AddUserInProcess","Main",new {UnitId = Model.UnitId, UserId = Model.ModifyingUserId, ProcessId = p.Id})"><i class="fa fa-plus-square fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <a class="transition" href="">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = p.ProcessType.Image.Id})" /></div>
+                <div class="panel-footer text-center">@p.Name</div>
+            </div>
+        </div>
+    }
+</div>
+
+<hr />
+<h3 class="text-center BTitrBold TitrShadow">
+    فرآیندهای ثبت شده کاربر
+</h3>
+<hr />
+@if (Model.UserProcesses.Count() == 0)
+{
+    <p class="text-center">
+        هیچ فرایندی برای نمایش موجود نیست
+    </p>
+}
+<div class="row">
+    @foreach (var p in Model.UserProcesses)
+    {
+        <div class="col-sm-4">
+            <div id="@Html.Raw("process"+p.Id)" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <div class="LinkPanelSettingOnTop text-center">
+                    <a class="transition" href="@Url.Action("RemoveUserFromProcess","Main",new {UnitId = Model.UnitId, UserId = Model.ModifyingUserId, ProcessId = p.Id})"><i class="fa fa-close fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                </div>
+                <a class="transition" href="">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = p.ProcessType.Image.Id})" /></div>
+                <div class="panel-footer text-center">@p.Name</div>
+            </div>
+        </div>
+    }
+</div>

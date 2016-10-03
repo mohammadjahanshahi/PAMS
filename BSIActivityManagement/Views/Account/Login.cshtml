@@ -1,0 +1,64 @@
+﻿@using BSIActivityManagement.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "ورود به فضای کاربری";
+    Layout = "~/Views/Shared/_PersianLayoutLogout.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h2>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <section id="loginForm">
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <h4 class="text-center BTitrBold TitrShadow">اطلاعات کاربری خود را وارد نمایید</h4>
+                <hr />
+                <div class="row">
+                    <div class="col-md-offset-2 col-md-10">
+                         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label BHamid FontBozorg" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label BHamid FontBozorg" })
+                    <div class="col-md-10">
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control form-control-max BNazanin FontBozorg" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <div class="checkbox">
+                            @Html.LabelFor(m => m.RememberMe,new { @class = "control-label BHamid FontBozorg", @style = "padding-right: 2px;" })
+                            @Html.CheckBoxFor(m => m.RememberMe, new { @style = "float:right;margin-top:8px;" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12 text-center">
+                        <input type="submit" value="ورود" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("Index","Home")" class="btn btn-default BTitrBold FontKoochik box-btn-shadow">انصراف</a>
+                    </div>
+                </div>
+                <hr />
+                <p class="text-center">
+                    @Html.ActionLink("به عنوان کاربر جدید ثبت نام نمایید", "Register",null,new {@class = "btn btn-default BTitrBold FontKoochik box-btn-shadow" })
+                </p>
+                @* Enable this once you have account confirmation enabled for password reset functionality
+                    <p>
+                        @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                    </p>*@
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

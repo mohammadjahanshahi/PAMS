@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "عملیات با موفقیت انجام شد";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+<hr />
+<div class="row">
+    <div class="col-md-offset-3 col-md-6 text-center">
+        <i class="fa fa-check fa-5x TickSelected" aria-hidden="true"></i>
+        <h2 class="text-center text-success BTitrBold TitrShadow">
+            درخواست شما با موفقیت ثبت شد
+        </h2>
+        <hr />
+        <a href="@Url.Action("Index","UnitManager")" class="btn btn-default BTitrBold FontKoochik box-btn-shadow">ثبت مجدد </a> | <a href="@Url.Action("Index","Home")" class="btn btn-default BTitrBold FontKoochik box-btn-shadow">بازگشت به صفحه اصلی</a>
+    </div>
+</div>
