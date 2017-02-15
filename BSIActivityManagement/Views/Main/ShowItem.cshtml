@@ -6,7 +6,7 @@
 }
 
 <div class="jumbotron">
-    <div class="row">
+    <div class="row headerjumb">
         <div class="col-md-4">
             <div class="panel panel-default LinkPanel main-panel-circle">
                 <div class="panel-body LinkPanelBody main-panel-circle">
@@ -26,7 +26,7 @@
             </p>
         </div>
     </div>
-    <a style="position:absolute;left:10px;" href="@Url.Action("ShowActivity", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("ShowActivity", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
 </div>
 
     @for (int k = 0; k < Model.DocumentPages; k++)

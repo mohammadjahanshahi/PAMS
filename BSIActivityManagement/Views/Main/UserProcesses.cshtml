@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
 }
 <div class="jumbotron">
-    <div class="row">
+    <div class="row headerjumb">
         <div class="col-md-4">
             <div class="panel panel-default LinkPanel">
                 <div class="panel-body LinkPanelBody">
@@ -25,7 +25,7 @@
             </p>
         </div>
     </div>
-    <a style="position:absolute;left:10px;" href="@Url.Action("Unit", "Main")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Unit", "Main")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
 </div>
 
 @if (Model.Processes.Count() == 0)
@@ -39,7 +39,7 @@
     {
         <div class="col-sm-4">
             <div id="@Html.Raw("Prcs"+p.Id)" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
-                <a class="transition" href="@Url.Action("ProcessActivities","Main", new {UnitId = Model.UnitId, ProcessId = p.Id })">
+                <a class="transition" href="@Url.Action("ProcessActivities","Main", new {UnitId = Model.Unit.Id, ProcessId = p.Id })">
                     <span class="PanelLinkSpan"></span>
                 </a>
                 <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = p.ProcessType.Image.Id})" /></div>

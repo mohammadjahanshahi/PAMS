@@ -201,14 +201,27 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ActivityController.cs" />
     <Compile Include="Controllers\ActivityItemTypeController.cs" />
+    <Compile Include="Controllers\ActivityRegistrationController.cs" />
+    <Compile Include="Controllers\AddressController.cs" />
+    <Compile Include="Controllers\BankAccountController.cs" />
+    <Compile Include="Controllers\ConversionController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InstallmentsFollowUpController.cs" />
+    <Compile Include="Controllers\LoanController.cs" />
     <Compile Include="Controllers\MainController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\MizanLoanController.cs" />
     <Compile Include="Controllers\OrganizationController.cs" />
     <Compile Include="Controllers\OrganizationUnitController.cs" />
     <Compile Include="Controllers\ProcessController.cs" />
     <Compile Include="Controllers\ActivityTypeController.cs" />
     <Compile Include="Controllers\ProcessTypeController.cs" />
+    <Compile Include="Controllers\QualityIndexController.cs" />
+    <Compile Include="Controllers\QualityMilestoneController.cs" />
+    <Compile Include="Controllers\QualityRuleController.cs" />
+    <Compile Include="Controllers\RevisionController.cs" />
     <Compile Include="Controllers\SysAdminController.cs" />
     <Compile Include="Controllers\UnitManagerController.cs" />
     <Compile Include="Controllers\UserPlacementController.cs" />
@@ -217,13 +230,16 @@
     <Compile Include="Controllers\UserTypeController.cs" />
     <Compile Include="Controllers\UserTypeManagerController.cs" />
     <Compile Include="DAL\MainDBModel.cs" />
+    <Compile Include="Extensions\DisplayExtension.cs" />
     <Compile Include="Extensions\IdentityExtension.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Logic\DML.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CheckMedia.cs" />
+    <Compile Include="Enum\EnumClass.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -236,10 +252,13 @@
     <Content Include="Content\agencysite.css" />
     <Content Include="Content\bootstrap-flipped.min.css" />
     <Content Include="Content\bootstrap-rtl.min.css" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\jquery.Bootstrap-PersianDateTimePicker.css" />
     <Content Include="Content\PersianLanguage.css" />
     <Content Include="Content\reset.css" />
     <Content Include="Content\simple-sidebar.css" />
@@ -319,11 +338,17 @@
     <Content Include="Content\scss\_screen-reader.scss" />
     <Content Include="Content\scss\_stacked.scss" />
     <Content Include="Content\scss\_variables.scss" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="indexSideResponsive.cshtml" />
     <Content Include="Scripts\agency.js" />
     <Content Include="Scripts\agency.min.js" />
-    <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="fonts\persianfonts\BBadr.eot" />
     <Content Include="fonts\persianfonts\BBadr.ttf" />
     <Content Include="fonts\persianfonts\BBadr.woff" />
@@ -450,20 +475,28 @@
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
     <None Include="Properties\PublishProfiles\ISOV3.pubxml" />
-    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\contact_me.js" />
     <Content Include="Scripts\jqBootstrapValidation.js" />
-    <Content Include="Scripts\jquery-1.10.2.js" />
-    <Content Include="Scripts\jquery-1.10.2.min.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <None Include="Scripts\jquery-3.1.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.1.1.js" />
+    <Content Include="Scripts\jquery-3.1.1.min.js" />
+    <Content Include="Scripts\jquery-3.1.1.slim.js" />
+    <Content Include="Scripts\jquery-3.1.1.slim.min.js" />
+    <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.1.1.min.map" />
     <Content Include="Scripts\jquery.js" />
     <Content Include="Scripts\jquery.menu-aim.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\main.js" />
-    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\MdBootstrapPersianDateTimePicker\jalaali.js" />
+    <Content Include="Scripts\MdBootstrapPersianDateTimePicker\jquery.Bootstrap-PersianDateTimePicker.js" />
+    <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
@@ -478,7 +511,9 @@
     <Content Include="vendor\jquery\jquery.js" />
     <Content Include="vendor\jquery\jquery.min.js" />
     <Content Include="Views\Shared\index.html" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -618,17 +653,64 @@
     <Content Include="Views\Activity\Edit.cshtml" />
     <Content Include="Views\Activity\SuccessEdit.cshtml" />
     <Content Include="Views\SysAdmin\ShowItem.cshtml" />
+    <Content Include="Views\Revision\New.cshtml" />
+    <Content Include="Views\Revision\Me.cshtml" />
+    <Content Include="Views\Revision\History.cshtml" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
+    <Content Include="Views\Revision\SelectUnitProcess.cshtml" />
+    <Content Include="Views\Revision\UnitProcesses.cshtml" />
+    <Content Include="Views\Revision\Unit.cshtml" />
+    <Content Include="Views\Revision\AppliedToMe.cshtml" />
+    <Content Include="Views\QualityIndex\Create.cshtml" />
+    <Content Include="Views\QualityIndex\Delete.cshtml" />
+    <Content Include="Views\QualityIndex\Details.cshtml" />
+    <Content Include="Views\QualityIndex\Edit.cshtml" />
+    <Content Include="Views\QualityIndex\Index.cshtml" />
+    <Content Include="Views\QualityIndex\SuccessfulCreate.cshtml" />
+    <Content Include="Views\QualityRule\Create.cshtml" />
+    <Content Include="Views\QualityRule\Index.cshtml" />
+    <Content Include="Views\QualityRule\Delete.cshtml" />
+    <Content Include="Views\QualityMilestone\Create.cshtml" />
+    <Content Include="Views\QualityMilestone\Delete.cshtml" />
+    <Content Include="Views\QualityMilestone\Details.cshtml" />
+    <Content Include="Views\QualityMilestone\Edit.cshtml" />
+    <Content Include="Views\QualityMilestone\Index.cshtml" />
+    <Content Include="Views\ActivityRegistration\Register.cshtml" />
+    <Content Include="Views\ActivityRegistration\Index.cshtml" />
+    <Content Include="Views\InstallmentsFollowUp\Index.cshtml" />
+    <Content Include="Views\Customer\Delete.cshtml" />
+    <Content Include="Views\Customer\Details.cshtml" />
+    <Content Include="Views\Customer\Edit.cshtml" />
+    <Content Include="Views\Customer\Index.cshtml" />
+    <Content Include="Views\Customer\New.cshtml" />
+    <Content Include="Views\Customer\Success.cshtml" />
+    <Content Include="Views\BankAccount\New.cshtml" />
+    <Content Include="Views\BankAccount\Success.cshtml" />
+    <Content Include="Views\BankAccount\Edit.cshtml" />
+    <Content Include="Views\BankAccount\Delete.cshtml" />
+    <Content Include="Views\Loan\Delete.cshtml" />
+    <Content Include="Views\Loan\Edit.cshtml" />
+    <Content Include="Views\Loan\New.cshtml" />
+    <Content Include="Views\Loan\Success.cshtml" />
+    <Content Include="Views\Loan\Index.cshtml" />
+    <Content Include="Views\Address\New.cshtml" />
+    <Content Include="Views\Address\Success.cshtml" />
+    <Content Include="Views\Address\Delete.cshtml" />
+    <Content Include="Views\Address\Edit.cshtml" />
+    <Content Include="Views\Main\UserLog.cshtml" />
+    <Content Include="Views\InstallmentsFollowUp\MyLog.cshtml" />
+    <Content Include="Views\Conversion\Index.cshtml" />
+    <Content Include="Views\Account\ResetPasswordAdmin.cshtml" />
+    <Content Include="Views\Account\UserNotFound.cshtml" />
+    <Content Include="Views\Account\ResetPasswordByCode.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\MizanLoan\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
-    <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

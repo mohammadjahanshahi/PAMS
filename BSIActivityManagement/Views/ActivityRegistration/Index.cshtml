@@ -1,0 +1,79 @@
+﻿@model BSIActivityManagement.ViewModel.ActivityQualityIndexViewModel
+@{
+    ViewBag.Title = "جدول اهداف کیفیت";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    ViewBag.Nav = ViewBag.QualityNavigation;
+}
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = Model.Activity.Type.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @Model.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @Model.Activity.Name در فرآیند <span class="FontKheiliBozorg title-bold">@Model.Process.Name</span> از @Model.Unit.Name
+            </h2><hr style="color:black;" />
+            <p class="TitrShadow BMitra text-center">
+                @Model.Activity.Description
+            </p>
+        </div>
+    </div>
+    <div class="row btnpanel">
+        <div class="col-md-6 text-center">
+
+        </div>
+        <div class="col-md-6 text-center">
+
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("ShowActivity", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+@foreach (var k in Model.MileStoneStatusList)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+        @k.MileStone.Description <hr />
+            @k.MileStone.Rule.Index.Title <hr />
+            
+            @if(k.IsAlive)
+            {
+                <section>وضعیت هدف: در جریان <br /><hr />  وضعیت فعلی هدف: @k.GoalStatus.ToString() (@k.GoalPercentage.ToString()%)</section> 
+            }
+            else
+            {
+                <section>وضعیت هدف: پایان دوره زمانی<br /><hr /> وضعیت فعلی هدف: @k.GoalStatus.ToString() (@k.GoalPercentage.ToString()%)</section>
+            }
+        </div>
+        <div class="panel-body">
+            <div class="progress" style="height:25px;">
+                <div class="progress-bar progress-bar-success" role="progressbar" style="width:@k.GoalPercentage.ToString()%">
+                   وضعیت فعلی هدف: @k.GoalStatus.ToString() (@k.GoalPercentage.ToString()%)
+                </div>
+                <div class="progress-bar progress-bar-warning" role="progressbar" style="width:@Html.Raw(100-k.GoalPercentage)%">
+                    درصد باقیمانده تا هدف: @Html.Raw(100 - k.GoalPercentage)%
+                </div>
+            </div>
+
+            <div class="progress" style="height:25px;">
+                <div class="progress-bar progress-bar-success" role="progressbar" style="width:@Html.Raw(100-k.RemainingTimePercentage)%">
+                    درصد زمان سپری شده: @Html.Raw(100 - k.RemainingTimePercentage)%
+                </div>
+                <div class="progress-bar progress-bar-warning" role="progressbar" style="width:@Html.Raw(k.RemainingTimePercentage)%">
+                  درصد زمان باقیمانده: @Html.Raw(k.RemainingTimePercentage)%
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+}
+

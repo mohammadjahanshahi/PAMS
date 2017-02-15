@@ -115,21 +115,60 @@ namespace BSIActivityManagement.Models
         public string Code { get; set; }
     }
 
+    public class ResetPasswordAdminViewModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [Display(Name = "نام کاربری")]
+        public string UserName { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "{0} حداقل باید از {2} حرف تشکیل شده باشد", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "کلمه عبور")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "تکرار کلمه عبور")]
+        [Compare("Password", ErrorMessage = "کلمه عبور و تکرار آن با هم همخوانی ندارند. ")]
+        public string ConfirmPassword { get; set; }
+    }
+
     public class ForgotPasswordViewModel
     {
         [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
+        [Display(Name = "نام کاربری")]
+        public string UserName { get; set; }
     }
 
-    public static class IdentityExtensions
+    //public static class IdentityExtensions
+    //{
+    //    public static string GetOrganizationId(this IIdentity identity)
+    //    {
+    //        var claim = ((ClaimsIdentity)identity).FindFirst("OrganizationId");
+    //        // Test for null to avoid issues during local testing
+    //        return (claim != null) ? claim.Value : string.Empty;
+    //    }
+    //}
+
+    public class ForgotPasswordCodeViewModel
     {
-        public static string GetOrganizationId(this IIdentity identity)
-        {
-            var claim = ((ClaimsIdentity)identity).FindFirst("OrganizationId");
-            // Test for null to avoid issues during local testing
-            return (claim != null) ? claim.Value : string.Empty;
-        }
+        [StringLength(128)]
+        public string AspUserId { get; set; }
+        [Display(Name = "کد فعال سازی")]
+        [Required(ErrorMessage = "کد فعال سازی وارد نشده است")]
+        public int Code { get; set;}
+
+        [Required]
+        [StringLength(100, ErrorMessage = "{0} حداقل باید از {2} حرف تشکیل شده باشد", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "کلمه عبور جدید")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "تکرار کلمه عبور")]
+        [Compare("Password", ErrorMessage = "کلمه عبور و تکرار آن با هم همخوانی ندارند. ")]
+        public string ConfirmPassword { get; set; }
     }
 }

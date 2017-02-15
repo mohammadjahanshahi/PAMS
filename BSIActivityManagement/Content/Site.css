@@ -184,3 +184,89 @@ textarea {
 .title-bold{
     color:crimson;
 }
+.actionicon{
+    color:rgb(8, 67, 160);
+    margin:auto;
+}
+
+.improveicon{
+    color:rgb(9, 90, 8);
+}
+.btn-circle {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  padding: 6px 0;
+  line-height: 1.42;
+  border-radius: 24px;
+  padding-top:9px;
+}
+.btnpanel{
+    padding-top:5px;
+    padding-bottom:5px;
+    background-color:rgba(0,0,0,0.05);
+    border-bottom-left-radius:10px;
+    border-bottom-right-radius:10px;
+}
+.headerjumb{
+    margin-top:5px;
+    border-top-left-radius:10px;
+    border-top-right-radius:10px;
+    border-bottom-left-radius:10px;
+    border-bottom-right-radius:10px;
+    background-color:rgba(0,0, 0,0.05);
+    margin-left:5px;
+    margin-right:5px;
+}
+
+.RevisionStatusColor_0{
+    background-color:white;
+}
+
+.RevisionStatusColor_1{
+    background-color:darkgray;
+}
+.RevisionStatusColor_2{
+    background-color:rgb(174, 218, 251);
+    color:black;
+}
+.RevisionStatusColor_3{
+    background-color:rgb(250, 139, 139);
+    color:black;
+}
+.RevisionStatusColor_4{
+    background-color:rgb(105, 189, 252);
+    color:black;
+}
+.RevisionStatusColor_5{
+    background-color:rgb(239, 74, 74);
+    color:black;
+}
+.RevisionStatusColor_6{
+    background-color:rgb(36, 145, 228);
+    color:black;
+}
+.RevisionStatusColor_7{
+    background-color:rgb(216, 28, 28);
+    color:black;
+}
+.RevisionStatusColor_8{
+    background-color:rgb(6, 72, 122);
+    color:black;
+}
+.RevisionStatusColor_9{
+    background-color:rgb(146, 4, 4);
+    color:black;
+}
+.RevisionStatusColor_10{
+    background-color:rgb(74, 198, 24);
+    color:black;
+}
+
+.btn-dashboard{
+    width:180px;
+    padding:15px 3px 15px 3px;
+    vertical-align:middle;
+    margin-bottom:20px;
+    display:inline-block;
+}

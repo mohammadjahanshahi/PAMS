@@ -1,0 +1,154 @@
+﻿@model BSIActivityManagement.ViewModel.LoanRegisterationViewModel
+
+@{
+    ViewBag.Title = "افزودن تسهیلات جدید";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    BSIActivityManagement.ViewModel.UnitProcessActObjectViewModel UPAObj = ViewBag.UPA;
+    BSIActivityManagement.DAL.AMCustomer Customer = ViewBag.Customer;
+}
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = UPAObj.Activity.Type.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @UPAObj.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @UPAObj.Activity.Name در فرآیند <span class="FontKheiliBozorg title-bold">@UPAObj.Process.Name</span> از @UPAObj.Unit.Name
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Index", "Customer", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, CustomerNumber = Customer.CustomerNumber })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+@if (Customer.Id == 0)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">مشتری شناسایی نشد</div>
+        <div class="panel-body">
+            <dl class="dl-horizontal LineSpaceZiad">
+                <dt>نام: </dt>
+                <dd> - </dd>
+                <dt>نام خانوادگی: </dt>
+                <dd> - </dd>
+                <dt>نوع مشتری: </dt>
+                <dd> - </dd>
+            </dl>
+        </div>
+    </div>
+}
+else
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">مشتری : @Customer.CustomerNumber</div>
+        <div class="panel-body">
+            <dl class="dl-horizontal LineSpaceZiad">
+                <dt>نام: </dt>
+                <dd>@Customer.FirstName</dd>
+                <dt>نام خانوادگی: </dt>
+                <dd>@Customer.Lastname</dd>
+                <dt>نوع مشتری: </dt>
+                <dd>@BSIActivityManagement.Extensions.HtmlExtensions.CustomerEnumDisplayNameFor(Customer.CustomerType)</dd>
+            </dl>
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LoanNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LoanNumber, new { htmlAttributes = new { @class = "form-control", type = "number", dir = "ltr" } })
+                @Html.ValidationMessageFor(model => model.LoanNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LoanType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EnumDropDownListFor(model => model.LoanType, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LoanType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LoanTotalAmount, htmlAttributes: new { @class = "control-label col-md-2" }) 
+            
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LoanTotalAmount, new { htmlAttributes = new { @class = "form-control", type = "number", dir = "ltr", onkeyup = "showcomma();" } })
+                <input type="text" id="TotalAmoutWithComma" class="form-control" disabled dir="ltr" style="border:none;background-color:none;margin-top:2px;"/>
+                @Html.ValidationMessageFor(model => model.LoanTotalAmount, "", new { @class = "text-danger" })
+                
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LoanDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LoanDate, new { htmlAttributes = new { @class = "form-control", dir = "ltr", placeholder = "yyyy/mm/dd" } })
+                @Html.ValidationMessageFor(model => model.LoanDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TotalInstallments, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.TotalInstallments, new { htmlAttributes = new { @class = "form-control", type = "number", dir = "ltr" } })
+                @Html.ValidationMessageFor(model => model.TotalInstallments, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.InstallmentDuration, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EnumDropDownListFor(model => model.InstallmentDuration, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.InstallmentDuration, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @Html.Hidden("CustomerId", Customer.Id)
+        @Html.Hidden("UnitId", UPAObj.Unit.Id)
+        @Html.Hidden("ProcessId", UPAObj.Process.Id)
+        @Html.Hidden("ActivityId", UPAObj.Activity.Id)
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="ثبت" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" /> | <a href="@Url.Action("Index", "Customer", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, CustomerNumber = Customer.CustomerNumber })" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition">انصراف</a>
+            </div>
+        </div>
+    </div>
+}
+<script>
+
+    function showcomma() {
+        $("#TotalAmoutWithComma").val(addCommas($("#LoanTotalAmount").val()));
+    }
+
+    function addCommas(n) {
+        var rx = /(\d+)(\d{3})/;
+        return String(n).replace(/^\d+/, function (w) {
+            while (rx.test(w)) {
+                w = w.replace(rx, '$1,$2');
+            }
+            return w;
+        });
+    }
+
+</script>

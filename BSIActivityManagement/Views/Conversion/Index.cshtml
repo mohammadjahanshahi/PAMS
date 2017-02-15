@@ -1,0 +1,200 @@
+﻿@model BSIActivityManagement.ViewModel.ConversionIndexViewModel
+@{
+    ViewBag.Title = "کنترل پنل انتقال تسهیلات میزان";
+    Layout = "~/Views/Shared/_PersianLayout.cshtml";
+}
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header panel-circle main-panel-circle">
+                    @ViewBag.Title
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                 فرآیند تبدیل و انتقال اطلاعات <span class="FontKheiliBozorg title-bold"> تسهیلات و مشتریان  </span>تعاونی میزان
+            </h2><hr style="color:black;" />
+            <p class="TitrShadow BMitra text-center">
+                
+            </p>
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Index", "SysAdmin")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+<hr />
+
+<table class="table table-bordered">
+    <thead>
+        <tr class="active">
+            <td>
+
+            </td>
+            <td class="text-center"> 
+                جزییات تبدیلات اطلاعات جدول مشتریان
+            </td>
+            <td></td>
+            <td class="text-center">
+                جزییات تبدیلات اطلاعات جدول تسهیلات
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="success text-center">
+                موفقیت آمیز: 
+            </td>
+            <td class="text-center">
+                @Model.MizanCustomerRecordsConvertedSuccessfullyCount
+            </td>
+            <td class="success text-center">
+                موفقیت آمیز:
+            </td>
+            <td class="text-center">
+                @Model.MizanLoanRecordsConvertedSuccessfullyCount
+            </td>
+        </tr>    
+        <tr>
+            <td class="warning text-center">
+                دارای هشدار:
+            </td>
+            <td class="text-center">
+                @Model.MizanCustomerRecordsConvertedWithWarningCount
+            </td>
+            <td class="warning text-center">
+                دارای هشدار:
+            </td>
+            <td class="text-center">
+                @Model.MizanLoanRecordsConvertedWithWarningCount
+            </td>
+        </tr>
+        <tr>
+            <td class="danger text-center">ناموفق: </td>
+            <td class="text-center">@Model.MizanCustomerRecordsConversionFailedCount</td>
+            <td class="danger text-center">ناموفق: </td>
+            <td class="text-center">@Model.MizanLoanRecordsConversionFailedCount</td>
+        </tr>
+        <tr>
+            <td class="active text-center">اعمال نشده: </td>
+            <td class="text-center">@Model.MizanCustomerRecordsUnConvertedCount</td>
+            <td class="active text-center">اعمال نشده: </td>
+            <td class="text-center">@Model.MizanLoanRecordsUnConvertedCount</td>
+        </tr>
+        <tr>
+            <td class="active text-center">مجموع: </td>
+            <td class="active text-center">@Model.MizanCustomerRecordsCount</td>
+            <td class="active text-center">مجموع </td>
+            <td class="active text-center">@Model.MizanLoanRecordsCount</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2  class="text-center BTitrBold TitrShadow">
+    اطلاعات آماری خطاهای تبدیل تسهیلات
+</h2>
+<hr>
+<table class="table table-bordered">
+    <thead>
+        <tr class="active">
+            <td class="text-center">عنوان خطا</td>
+            <td class="text-center">تعداد</td>
+            <td class="text-center">درصد</td>
+        </tr>
+    </thead>
+    <tbody class="text-center">
+        <tr>
+            <td class="active">
+                هیچ ضامن یا متعهد شناسایی نشد
+            </td>
+            <td class="warning">
+                @Model.Statistics.DebtorRefereeError
+            </td>
+            <td class="danger">
+                @{
+                    var p = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.DebtorRefereeError / (float)Model.Statistics.TotalFailed);
+                }
+                @Html.Raw((int)(p * 100)) @if ((int)(p * 100) > 0)
+                { @Html.Raw(" % ") }
+            </td>
+        </tr>
+        <tr>
+            <td class="active">فقط ضامن شناسایی شد</td>
+            <td class="warning">
+                @Model.Statistics.DebtorError
+            </td>
+            <td class="danger">
+                @{
+                    var p1 = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.DebtorError / (float)Model.Statistics.TotalFailed);
+                }
+                @Html.Raw((int)(p1 * 100)) @if ((int)(p1 * 100) > 0) { @Html.Raw(" % ") }
+            </td>
+        </tr>
+        <tr>
+            <td class="active">خطای تعداد اقساط</td>
+            <td class="warning">
+                @Model.Statistics.InstallmentCountError
+            </td>
+            <td class="danger">
+                @{
+                    var p2 = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.InstallmentCountError / (float)Model.Statistics.TotalFailed);
+                }
+                @Html.Raw((int)(p2 * 100)) @if ((int)(p2 * 100) > 0)
+                { @Html.Raw(" % ") }
+            </td>
+        </tr>
+        <tr>
+            <td class="active">فاصله اقساط کمتر از ۱۰ روز </td>
+            <td class="warning">
+                @Model.Statistics.InstallmentPeriodError
+            </td>
+            <td class="danger">
+                @{var p3 = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.InstallmentPeriodError / (float)Model.Statistics.TotalFailed);
+                }
+                @Html.Raw((int)(p3 * 100)) @if ((int)(p3 * 100) > 0)
+                { @Html.Raw(" % ") }
+            </td>
+        </tr>
+        <tr>
+            <td class="active">خطا در تاریخ اعطای تسهیلات</td>
+            <td class="warning">
+                @Model.Statistics.LoanDateError
+            </td>
+            <td class="danger">
+                @{var p4 = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.LoanDateError / (float)Model.Statistics.TotalFailed);
+                }
+                @Html.Raw((int)(p4 * 100)) @if ((int)(p4 * 100) > 0)
+                { @Html.Raw(" % ") }
+            </td>
+        </tr>
+        <tr>
+            <td class="active">سایر خطاهای ناشناخته</td>
+            <td class="warning">
+                @Model.Statistics.Failure
+            </td>
+            <td class="danger">
+                @{var p5 = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.Failure / (float)Model.Statistics.TotalFailed);
+                }
+                @Html.Raw((int)(p5 * 100)) @if ((int)(p5 * 100) > 0)
+                { @Html.Raw(" % ") }
+            </td>
+        </tr>
+        <tr>
+            <td class="active">مجموع خطاها</td>
+            <td class="warning">
+                @Model.Statistics.TotalFailed
+            </td>
+            <td class="danger">
+                @{
+                    var p6 = Model.Statistics.TotalFailed == 0 ? 0 : ((float)Model.Statistics.TotalFailed / (float)Model.MizanLoanRecordsCount);
+                }
+                @Html.Raw((int)(p6 * 100)) @if ((int)(p6 * 100) > 0)
+                { @Html.Raw(" % ") }
+            </td>
+        </tr>
+    </tbody>
+</table>

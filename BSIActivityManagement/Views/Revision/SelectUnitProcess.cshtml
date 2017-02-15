@@ -1,0 +1,24 @@
+﻿@model IEnumerable<BSIActivityManagement.DAL.AMProcess>
+@{
+    ViewBag.Title = "انتخاب فرآیند در واحد انتخابی";
+    ViewBag.Nav = ViewBag.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<h2>انتخاب فرآیند</h2><hr />
+<div class="row rowLink">
+    <div class="col-center-content">
+        @foreach (var p in Model)
+        {
+            <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                <a class="transition" href="@Url.Action("UnitProcesses","Revision",new {UnitId = ViewBag.CurrentUnitId, ProcessId = p.Id })">
+                    <span class="PanelLinkSpan"></span>
+                </a>
+                <div class="panel-body LinkPanelBody">
+                    <img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = p.ProcessType.ImageId})" />
+                </div>
+                <div class="panel-footer text-center">@p.Name</div>
+            </div>
+        }
+    </div>
+</div>

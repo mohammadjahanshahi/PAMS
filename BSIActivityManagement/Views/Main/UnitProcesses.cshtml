@@ -6,7 +6,7 @@
 }
 
 <div class="jumbotron">
-    <div class="row">
+    <div class="row headerjumb">
         <div class="col-md-4">
             <div class="panel panel-default LinkPanel main-panel-circle">
                 <div class="panel-body LinkPanelBody main-panel-circle">
@@ -26,7 +26,11 @@
             </p>
         </div>
     </div>
-    <a style="position:absolute;left:10px;" href="@Url.Action("Unit", "Main")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Unit", "Main")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+<div class="alert text-center" id="divAlert">
+    شما در حال انتقال به زیر سیستم پیگیری و وصول مطالبات هستید: <strong id="displayTimer"></strong>  <a class="btn btn-default" style="margin-right:20px;" onclick="StopFunction()"> لغو </a> <a class="btn btn-default" style="margin-right:10px;" onclick="RedirectFunction()"> ادامه </a>
 </div>
 
 @if (Model.Processes.Count() == 0)
@@ -49,3 +53,30 @@
         </div>
     }
 </div>
+
+<script>
+    var time = 5;
+    var myVar = setInterval(function () { ShowTimer() }, 1000);
+    var divAlert = document.getElementById('divAlert');
+    function ShowTimer(){
+        var monitor = document.getElementById('displayTimer');
+        monitor.textContent = time;
+        time--;
+        if (time == 0) {
+            window.location = '@Html.Raw(Url.Action("Register", "ActivityRegistration", new { UnitId = Model.Unit.Id, ProcessId = 2, ActivityId = 228 }))';
+            clearInterval(myVar);
+            divAlert.textContent = "در حال انتقال به زیر سیستم پیگیری و وصول مطالبات ....‍‍";
+        }
+    }
+
+    function StopFunction() {
+        clearInterval(myVar);
+        divAlert.textContent = "انتقال خودکار به زیر سیستم پیگیری و وصول مطالبات لغو شد";
+    }
+
+    function RedirectFunction() {
+        window.location = '@Html.Raw(Url.Action("Register", "ActivityRegistration", new { UnitId = Model.Unit.Id, ProcessId = 2, ActivityId = 228 }))';
+        clearInterval(myVar);
+        divAlert.textContent = "در حال انتقال به زیر سیستم پیگیری و وصول مطالبات ....‍‍";
+    }
+</script>

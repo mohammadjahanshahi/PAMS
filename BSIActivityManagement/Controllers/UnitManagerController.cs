@@ -35,9 +35,9 @@ namespace BSIActivityManagement.Controllers
 
         public ActionResult Search(string AMquery)
         {
-            var keywordlist = AMquery.Trim().Split(' ', ';', ',', '+').Where(str => str.Length >= 1);
-            ViewBag.currentQuery = AMquery;
-            return View(DmlObj.SearchUnitByKeyWords(keywordlist));
+            //var keywordlist = AMquery.Trim().Split(' ', ';', ',', '+').Where(str => str.Length >= 1);
+            //ViewBag.currentQuery = AMquery;
+            return View(DmlObj.GetUnitByIdentity(AMquery));
         }
 
         public ActionResult SearchUser(string AMquery, string UnitId)
@@ -45,12 +45,12 @@ namespace BSIActivityManagement.Controllers
             int CurrentUnit = 0;
             Int32.TryParse(UnitId, out CurrentUnit);
             if (CurrentUnit == 0 || DmlObj.GetUnitById(CurrentUnit) == null) return View("Index");
-            var keywordlist = AMquery.Trim().Split(' ', ';', ',', '+').Where(str => str.Length >= 1);
+            //var keywordlist = AMquery.Trim().Split(' ', ';', ',', '+').Where(str => str.Length >= 1);
             ViewBag.currentQuery = AMquery;
             return View(new ViewModel.SearchUserViewModel
                 {
                 Unit = DmlObj.GetUnitById(CurrentUnit),
-                Users = DmlObj.SearchUserByKeyWords(keywordlist)
+                Users = DmlObj.SearchUserByUserName(AMquery)
                 });
         }
         public ActionResult Add(string UnitId, string UserId)

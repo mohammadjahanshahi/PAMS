@@ -1,0 +1,42 @@
+﻿@model BSIActivityManagement.DAL.AMQualityRule
+
+@{
+    ViewBag.Title = "حذف قانون کیفیت";
+    Layout = "~/Views/Shared/_PersianLayoutLogout.cshtml";
+}
+
+<h2>حذف</h2>
+
+<h3>آیا برای حذف این قانون مطمین هستید؟</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Activity.Name):
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Activity.Name)
+            <hr />
+        </dd>
+        
+        <dt>
+            @Html.DisplayNameFor(model => model.Index.Title):
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Index.Title)
+            <hr />
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="حذف" class="btn btn-default" /> |
+            <a href="@Url.Action("Index","sysadmin")#QualityIndex" class="btn btn-default">بازگشت</a> 
+        </div>
+    }
+</div>

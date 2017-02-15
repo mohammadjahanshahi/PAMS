@@ -110,6 +110,29 @@ namespace BSIActivityManagement.Controllers
             model.Navigation = DmlObj.AddManagerNaviagtion(Nav, AmUnitId).AsEnumerable();
             return View(model);
         }
+        [AMAuthorization(AccessKey = "VIEW_USER_LOG")]
+        public ActionResult UserLog(int? UnitId, int? UserId)
+        {
+            if (UnitId == null || UserId == null) return View("Error");
+            var Unit = DmlObj.GetUnitById((int)UnitId);
+            var CurrentUser = DmlObj.GetAmUserById((int)UserId);
+            if (Unit == null || CurrentUser == null || !DmlObj.VerifyUserUnit(Unit.Id, CurrentUser.Id) || !DmlObj.VerifyUserUnit(Unit.Id, Int32.Parse(User.GetAmUser()))) return View("Error");
+
+
+
+            ViewBag.Nav = DmlObj.GetMainNaviagtion(Unit.Id);
+
+            return View(new UserLogViewModel
+            {
+                ThisUser = CurrentUser,
+                CallList = DmlObj.GetUserCallLog(CurrentUser),
+                SetInstallmentNotificationList = DmlObj.GetUserInstallmentNotification(CurrentUser),
+                DoneInstallmentNotificationList = DmlObj.GetUserInstallmentNotificationDone(CurrentUser),
+                SetInstallmentStatusList = DmlObj.GetUserInstallmentStatusLog(CurrentUser),
+                UpdateLogList = DmlObj.GetUserLoanUpdateLog(CurrentUser),
+                FollowUpScore = DmlObj.GetUserFollowUpScore(CurrentUser, Unit)
+            });
+        }
 
         public ActionResult ModifyUserProcesses(string UnitId, string UserId)
         {
@@ -204,8 +227,10 @@ namespace BSIActivityManagement.Controllers
         public ActionResult ShowActivity(string UnitId, string ProcessId, string ActivityId)
         {
             int AmActivityId = 0;
+            int UserId = 0;
             Int32.TryParse(ActivityId, out AmActivityId);
             string AmUserStr = User.GetAmUser();
+            Int32.TryParse(AmUserStr, out UserId);
 
             if (AmActivityId == 0 || !DmlObj.CheckPageParameters(UnitId, AmUserStr, ProcessId) || !DmlObj.CheckPageParameters(AmUserStr,AmActivityId))
                 return View("Error");
@@ -218,6 +243,8 @@ namespace BSIActivityManagement.Controllers
             model.Unit = DmlObj.GetUnitById(Int32.Parse(UnitId));
             model.Process = DmlObj.GetProcessById(Int32.Parse(ProcessId));
             model.Navigation = Nav;
+            model.CurrentUser = DmlObj.GetAmUserById(UserId);
+            model.CreateMileStoneAccess = DmlObj.CheckUserAccessKeyByUserId("CREATE_MILESTONE", UserId.ToString());
             return View(model);
         }
 

@@ -1,0 +1,349 @@
+﻿@model BSIActivityManagement.ViewModel.UserLogViewModel
+@{
+    ViewBag.Title = "نمایش امتیازات ";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    BSIActivityManagement.ViewModel.UnitProcessActObjectViewModel UPAObj = ViewBag.UPA;
+}
+
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = UPAObj.Activity.Type.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @UPAObj.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @ViewBag.Title @Model.ThisUser.FirstName @Model.ThisUser.Lastname
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Index", "InstallmentsFollowUp", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    امتیازات کاربر
+</h2>
+<hr />
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th class="text-center">
+                عنوان
+            </th>
+            <th class="text-center">
+                ضریب تاثیر
+            </th>
+            <th class="text-center">
+                تعداد
+            </th>
+            <th class="text-center">
+                امتیاز اقساط وصول شده
+            </th>
+            <th class="text-center">
+                تعداد
+            </th>
+            <th class="text-center">
+                امتیاز در انتظار وصول
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                تماسهای ثبت شده 
+            </td>
+            <td>
+                5
+            </td>
+            <td>
+                @Model.CallList.Where(m => m.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.CallList.Where(m => m.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Select(m => new { k = 10 + (m.Installment.InstallmentAmount / 1000000) }).Sum(m => m.k * (5)))
+            </td>
+            <td>
+                @Model.CallList.Where(m => m.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.CallList.Where(m => m.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid).Select(m => new { k = 10 + (m.Installment.InstallmentAmount / 1000000) }).Sum(m => m.k * (5)))
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ثبت یادآوری
+            </td>
+            <td>
+                1
+            </td>
+            <td>
+                @Model.SetInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.SetInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Select(m => new { k = 10 + (m.InstallmentNotification.Installment.InstallmentAmount / 1000000) }).Sum(m => m.k))
+            </td>
+            <td>
+                @Model.SetInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.SetInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid).Select(m => new { k = 10 + (m.InstallmentNotification.Installment.InstallmentAmount / 1000000) }).Sum(m => m.k))
+            </td>
+        </tr>
+        <tr>
+            <td>
+               تایید یک یادآوری
+            </td>
+            <td>
+                3
+            </td>
+            <td>
+                @Model.DoneInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.DoneInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Select(m => new { k = 10 + (m.InstallmentNotification.Installment.InstallmentAmount / 1000000) }).Sum(m => m.k * (3)))
+            </td>
+            <td>
+                @Model.DoneInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.DoneInstallmentNotificationList.Where(m => m.InstallmentNotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid).Select(m => new { k = 10 + (m.InstallmentNotification.Installment.InstallmentAmount / 1000000) }).Sum(m => m.k * (3)))
+            </td>
+        </tr>
+        <tr>
+            <td>
+                تایید پرداخت قسط
+            </td>
+            <td>
+                10
+            </td>
+            <td>
+                @Model.SetInstallmentStatusList.Where(m => m.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Count()
+            </td>
+            <td>
+                @Decimal.ToInt32(Model.SetInstallmentStatusList.Where(m => m.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid).Select(m => new { k = 10 + (m.Installment.InstallmentAmount / 1000000) }).Sum(m => (m.k * 10)))
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>
+    نحوه محاسبه امتیاز = مبلغ قسط * ضریب تاثیر (بخش بر یک میلیون)
+</p>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    لیست تماسهای کاربر
+</h2>
+<hr />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>
+                زمان
+            </th>
+            <th>
+                شماره قسط
+            </th>
+            <th>
+                شماره تسهیلات
+            </th>
+            <th>
+                شماره تماس
+            </th>
+            <th>
+                شعبه
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var call in Model.CallList)
+        {
+            <tr>
+                <td>
+                    @BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)
+                </td>
+                <td>
+                    @call.Installment.IndexNumber
+                </td>
+                <td>
+                    @call.Installment.Loan.LoanNumber
+                </td>
+                <td>
+                    @call.Address.PhoneNumber
+                </td>
+                <td>
+                    @call.Installment.Loan.Unit.Name
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    لیست پیگیری های کاربر
+</h2>
+<hr />
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>
+                زمان
+            </th>
+            <th>
+                شماره تسهیلات
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.UpdateLogList)
+        {
+            <tr>
+                <td>
+                    @BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(log.UpdateTime)
+                </td>
+                <td>
+                    @log.Loan.LoanNumber
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    لیست ثبت یادآوری توسط کاربر
+</h2>
+<hr />
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>
+                زمان
+            </th>
+            <th>
+                شماره قسط
+            </th>
+            <th>
+                شماره تسهیلات
+            </th>
+            <th>
+                عملیات
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.SetInstallmentNotificationList)
+        {
+            <tr>
+                <td>
+                    @BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(log.CreationDateTime)
+                </td>
+                <td>
+                    @log.InstallmentNotification.Installment.IndexNumber
+                </td>
+                <td>
+                    @log.InstallmentNotification.Installment.Loan.LoanNumber
+                </td>
+                <td>
+                    @BSIActivityManagement.Extensions.HtmlExtensions.InstallmentNotificationActionEnumDisplayNameFor(log.Action)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    لیست عملیات یادآوری توسط کاربر
+</h2>
+<hr />
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>
+                زمان
+            </th>
+            <th>
+                شماره قسط
+            </th>
+            <th>
+                شماره تسهیلات
+            </th>
+            <th>
+                عملیات
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.DoneInstallmentNotificationList)
+        {
+            <tr>
+                <td>
+                    @BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(log.CreationDateTime)
+                </td>
+                <td>
+                    @log.InstallmentNotification.Installment.IndexNumber
+                </td>
+                <td>
+                    @log.InstallmentNotification.Installment.Loan.LoanNumber
+                </td>
+                <td>
+                    @BSIActivityManagement.Extensions.HtmlExtensions.InstallmentNotificationActionEnumDisplayNameFor(log.Action)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<h2 class="text-center BTitrBold TitrShadow">
+    لیست تاییدیه پرداخت کاربر
+</h2>
+<hr />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>
+                زمان
+            </th>
+            <th>
+                شماره قسط
+            </th>
+            <th>
+                شماره تسهیلات
+            </th>
+            <th>
+                عملیات
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.SetInstallmentStatusList)
+        {
+            <tr>
+                <td>
+                    @BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(log.CreationDateTime)
+                </td>
+                <td>
+                    @log.Installment.IndexNumber
+                </td>
+                <td>
+                    @log.Installment.Loan.LoanNumber
+                </td>
+                <td>
+                    @BSIActivityManagement.Extensions.HtmlExtensions.InstallmentActionEnumDisplayNameFor(log.Action)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

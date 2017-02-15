@@ -1,0 +1,64 @@
+﻿@model IEnumerable<BSIActivityManagement.ViewModel.RevisionHistoryViewModel>
+@{
+    ViewBag.Title = "مشاهده تاریخچه یک اقدام اصلاحی";
+    ViewBag.Nav = ViewBag.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">لیست نظرات برای این اقدام اصلاحی</h2>
+<hr />
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    شماره ارجاع
+                </th>
+                <th>
+                    تاریخ
+                </th>
+                <th>
+                    نام کاربر
+                </th>
+                <th>
+                   توضیح
+                </th>
+                <th>
+                    وضعیت
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var st in Model)
+            {
+                string classstatus = "RevisionStatusColor_" + st.Status.Status;
+
+                    <tr class="classstatus">
+                    <td> 
+                        @st.Status.Id
+                    </td>
+                    <td>
+                        @if (st.Days > 0) { Html.Raw(st.Days + "روز پیش"); } else if (st.Hours > 0) { Html.Raw(st.Hours + "ساعت پیش"); } else { Html.Raw("کمتر از یکساعت پیش"); } @st.PersianDate.DateYr/@st.PersianDate.DateMM/@st.PersianDate.DateDD - @st.PersianDate.DateHR:@st.PersianDate.DateMI:@st.PersianDate.DateSE 
+                    </td>
+                    <td>
+                        @st.Status.User.FirstName @st.Status.User.Lastname
+                    </td>
+                        <td>
+                            @st.Status.Description
+                        </td>
+                    <td>
+                        @if (st.Status.Status == 2 || st.Status.Status == 4 || st.Status.Status == 6 || st.Status.Status == 8) { Html.Raw("تایید شده"); } else if (st.Status.Status == 3 || st.Status.Status == 5 || st.Status.Status == 7 || st.Status.Status == 9) { Html.Raw("رد شده"); } else if (st.Status.Status == 1) { Html.Raw("فقط توضیحات"); } else { Html.Raw("نامعلوم"); }
+                    </td>
+                </tr>
+            }
+            @if(Model.Count() == 0)
+            {
+                <tr>
+                    <td>
+                        هیچ نظری تاکنون ثبت نشده است.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

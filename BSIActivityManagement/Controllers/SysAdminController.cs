@@ -10,10 +10,14 @@ using BSIActivityManagement.Authorization;
 using System.IO;
 using System.Drawing;
 using BSIActivityManagement.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using System.Threading.Tasks;
 
 namespace BSIActivityManagement.Controllers
 {
-    //[AMAuthorization(AccessKey = "SYSTEM_CHANGE")]
+    [AMAuthorization(AccessKey = "SYSTEM_CHANGE")]
     public class SysAdminController : Controller
     {
         DML DMLObj = new DML();
@@ -30,6 +34,7 @@ namespace BSIActivityManagement.Controllers
             SysadminObj.ActivityItemTypeArray = DMLObj.GetAllActivityItemTypes();
             SysadminObj.UserTypeArray = DMLObj.GetUserTypeList();
             SysadminObj.AccessArray = DMLObj.GetAccessList();
+            SysadminObj.QualityIndexArray = DMLObj.GetQualityIndexList();
 
             SysadminObj.CurrentOrgId = Org;
             SysadminObj.CurrentOrgParentId = DMLObj.GetParentOrgId(Org);
@@ -66,10 +71,10 @@ namespace BSIActivityManagement.Controllers
             List<NavViewModel> Nav = null;
 
             model.ActivityItemGropus = DMLObj.GetActivityAllItemsByActivityId(AmActivityId);
-            model.ActivityId = AmActivityId;
-            model.UnitId = 0;
+            model.Activity = DMLObj.GetActivityById(AmActivityId);
+            model.Unit = null;
             model.Navigation = Nav;
-            model.ProcessId = AmProcessId;
+            model.Process = DMLObj.GetProcessById(AmProcessId);
             return View(model);
         }
 
@@ -287,6 +292,30 @@ namespace BSIActivityManagement.Controllers
         }
 
 
+        //public ActionResult NewQualityRule(string ActivityId, string ProcessId)
+        //{
+        //    int AmActivityId = 0;
+        //    Int32.TryParse(ActivityId, out AmActivityId);
+        //    int AmProcessId = 0;
+        //    Int32.TryParse(ProcessId, out AmProcessId);
+        //    if (AmActivityId == 0 || AmProcessId == 0)
+        //        return View("Error");
+
+        //    return RedirectToAction("Create","QualityRule", new {ActivityId = AmActivityId, ProcessId = AmProcessId });
+        //}
+
+        //public ActionResult QualityRuleIndex(string ActivityId, string ProcessId)
+        //{
+        //    int AmActivityId = 0;
+        //    Int32.TryParse(ActivityId, out AmActivityId);
+        //    int AmProcessId = 0;
+        //    Int32.TryParse(ProcessId, out AmProcessId);
+        //    if (AmActivityId == 0 || AmProcessId == 0)
+        //        return View("Error");
+
+
+        //    return View();
+        //}
 
     }
 }

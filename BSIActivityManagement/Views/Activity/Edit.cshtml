@@ -201,7 +201,7 @@
     {
         var currentselectedorgs = $("#SelectedOrganizationStr").val();
         var selectedorgarr = currentselectedorgs.split(';');
-        if(currentselectedorgs.includes(id))
+        if(IncludeInString(currentselectedorgs,id))
         {
             currentselectedorgs = currentselectedorgs.replace(id+";","");
             $("#SelectedOrganizationStr").val(currentselectedorgs);
@@ -236,6 +236,16 @@
             }
         }
         return newArray;
+    }
+
+    function IncludeInString(s, n)
+    {
+        var newArray = s.split(';');
+        for(k=0;k<newArray.length;k++){
+            if(newArray[k] == n)
+                return true;
+        }
+        return false;
     }
 
     function MakeRowProcess(id,imageid,name,parentId){
@@ -293,7 +303,8 @@
     function selectprocess(id)
     {
         var currentselectedprocesses = $("#SelectedProcessesStr").val();
-        if(currentselectedprocesses.includes(id))
+        
+        if(IncludeInString(currentselectedprocesses,id))
         {
             currentselectedprocesses = currentselectedprocesses.replace(id+";","");
             $("#SelectedProcessesStr").val(currentselectedprocesses);

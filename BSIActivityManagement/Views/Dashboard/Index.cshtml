@@ -1,0 +1,42 @@
+﻿
+@{
+    ViewBag.Title = "داشبود کاربر";
+    ViewBag.Nav = ViewBag.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<h2>داشبورد کاری کاربر</h2><hr />
+<div class="row">
+    <div class="col-md-4">
+        <a href="@Url.Action("Me","Revision",new {UnitId = ViewBag.CurrentUnit })" class="btn btn-default btn-dashboard">
+            اقدامات اصلاحی من
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="@Url.Action("SelectUnitProcess","Revision",new {UnitId = ViewBag.CurrentUnit })" class="btn btn-default btn-dashboard">
+            اقدامات اصلاحی یک فرآیند در این واحد
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="@Url.Action("Unit","Revision",new {UnitId = ViewBag.CurrentUnit })" class="btn btn-default btn-dashboard">
+            کل اقدامات اصلاحی این واحد
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <a href="@Url.Action("AppliedToMe","Revision",new {UnitId = ViewBag.CurrentUnit })" class="btn btn-default btn-dashboard">
+            اقدامات اصلاحی مورد نیاز بررسی
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="@Url.Action("Organization","Revision",new {UnitId = ViewBag.CurrentUnit })" class="btn btn-default btn-dashboard">
+            اقدامات اصلاحی یک گروه سازمانی
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="@Url.Action("OrganizationProcesses","Revision",new {UnitId = ViewBag.CurrentUnit })" class="btn btn-default btn-dashboard">
+            اقدامات اصلاحی یک فرآیند از گروه سازمانی
+        </a>
+    </div>
+</div>

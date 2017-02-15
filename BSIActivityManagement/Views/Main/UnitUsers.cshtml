@@ -21,12 +21,21 @@
             <div id="@Html.Raw("User"+u.Id)" class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
                 <div class="LinkPanelSettingOnTop">
                     <a class="transition" href="@Url.Action("ModifyUserProcesses","Main",new {UnitId = Model.UnitId, UserId = u.Id})"><i class="fa fa-cogs fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                    <a class="transition" href="@Url.Action("ResetUserPassword","Main",new {UnitId = Model.UnitId, UserId = u.Id})"><i class="fa fa-key fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
                 </div>
-                <a class="transition" href="">
+                <a class="transition" href="@Url.Action("UserLog", new {UnitId = Model.UnitId, UserId = u.Id })">
                     <span class="PanelLinkSpan"></span>
                 </a>
                 <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = u.Image.Id})" /></div>
-                <div class="panel-footer text-center">@u.FirstName @u.Lastname</div>
+                <div class="panel-footer text-center">@u.FirstName @u.Lastname 
+                @{ 
+                    var k = u.ForgotPasswordCodeList.Where(m => m.UsedStatus == BSIActivityManagement.Enum.ForgotPasswordCodeStatus.UnUsed && m.Expiration > DateTime.Now);
+                    if (k.Count()>0)
+                    {
+                        <span>کد فعالسازی: @k.Last().Code </span>
+                    }
+                }
+                </div>
             </div>
         </div>
     }

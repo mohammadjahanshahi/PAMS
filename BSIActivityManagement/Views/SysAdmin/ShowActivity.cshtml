@@ -4,11 +4,23 @@
     ViewBag.Nav = Model.Navigation;
     Layout = "~/Views/Shared/_PersianLayout.cshtml";
 }
-<div class="jumbotron text-center">
-    <h2 class="BTitrBold TitrShadow fontkheilibozorg">
-        @ViewBag.Title
-    </h2>
-        <a style="position:absolute;left:10px;" href="@Url.Action("ProcessActivities","SysAdmin",new {ProcessId = Model.ProcessId })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-12 text-center">
+            <h2 class="BTitrBold">
+                فعالیت @Model.Activity.Name 
+            </h2><hr />
+        </div>
+    </div>
+    <div class="row btnpanel">
+        <div class="col-md-6 text-center">
+            <a title="ثبت قانون کیفیت" class="btn btn-default" href="@Url.Action("Create", "QualityRule", new { ActivityId = Model.Activity.Id, ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-lightbulb-o actionicon"></i></a>
+        </div>
+        <div class="col-md-6 text-center">
+            <a title="مشاهده قوانین" class="btn btn-default btn-circle" href="@Url.Action("Index", "QualityRule", new {ActivityId = Model.Activity.Id, ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-eye improveicon"></i></a>
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;" href="@Url.Action("ProcessActivities","SysAdmin",new {ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
 </div>
 @if (Model.ActivityItemGropus.Count() == 0)
 {
@@ -28,10 +40,10 @@
                 {
                         <div id="@Html.Raw("item"+item.Id)" class="panel panel-primary LinkPanel box-btn-shadow BTitrBold FontKoochik">
                             <div class="LinkPanelSettingOnTop text-center">
-                                <a class="transition" href="@Url.Action("RemoveItem","SysAdmin",new {ItemId = item.Id , ProcessId = Model.ProcessId})"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
-                                <a class="transition" href="@Url.Action("EditItem","SysAdmin",new {ItemId = item.Id , ProcessId = Model.ProcessId })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                                <a class="transition" href="@Url.Action("RemoveItem","SysAdmin",new {ItemId = item.Id , ProcessId = Model.Process.Id})"><i class="fa fa-trash-o fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
+                                <a class="transition" href="@Url.Action("EditItem","SysAdmin",new {ItemId = item.Id , ProcessId = Model.Process.Id })"><i class="fa fa-edit fa-fw fa-2x BtnFontAwesomeTopLinkPanel"></i></a>
                             </div>
-                            <a class="transition" href="@Url.Action("ShowItem","SysAdmin", new {ItemId = item.Id, ProcessId = Model.ProcessId })">
+                            <a class="transition" href="@Url.Action("ShowItem","SysAdmin", new {ItemId = item.Id, ProcessId = Model.Process.Id })">
                                 <span class="PanelLinkSpan"></span>
                             </a>
                             <div class="panel-body LinkPanelBody"><img class="Image-Link-250" src="@Url.Action("GetImage","Home",new { id = item.ItemType.Image.Id})" /></div>
@@ -41,7 +53,7 @@
                         </div>
                 }
                 <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
-                    <a class="transition" href="@Url.Action("AddItem","SysAdmin",new {ActivityId = Model.ActivityId , ItemTypeId = t.Type.Id, ProcessId = Model.ProcessId} )">
+                    <a class="transition" href="@Url.Action("AddItem","SysAdmin",new {ActivityId = Model.Activity.Id , ItemTypeId = t.Type.Id, ProcessId = Model.Process.Id} )">
                         <span class="PanelLinkSpan"></span>
                     </a>
                     <div class="panel-body LinkPanelBody"><i class="fa fa-plus-circle" aria-hidden="true" style="font-size:140px;color:lightgrey;"></i></div>

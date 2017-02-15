@@ -1,0 +1,732 @@
+﻿@model BSIActivityManagement.ViewModel.FollowUpIndexViewModel
+@{
+    ViewBag.Title = "زیر سیستم پی گیری و وصول مطالبات";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    BSIActivityManagement.ViewModel.UnitProcessActObjectViewModel UPAObj = ViewBag.UPA;
+}
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = UPAObj.Activity.Type.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @UPAObj.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @UPAObj.Activity.Name در فرآیند <span class="FontKheiliBozorg title-bold">@UPAObj.Process.Name</span> از @UPAObj.Unit.Name
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("ShowActivity", "Main", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+<div class="row">
+    <div class="col-md-3 text-center">
+        <a href="@Url.Action("New","Customer",new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id   })" class="btn btn-default btn-dashboard">
+            ثبت مشتری جدید
+        </a>
+    </div>
+    <div class="col-md-2 text-center">
+        <a href="@Url.Action("Index","Customer",new {UnitId = UPAObj.Unit.Id , ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })" class="btn btn-default btn-dashboard">
+            مشاهده اطلاعات مشتری
+        </a>
+    </div>
+    <div class="col-md-2 text-center">
+        <a href="@Url.Action("Index","Loan",new {UnitId = UPAObj.Unit.Id , ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })" class="btn btn-default btn-dashboard">
+            مشاهده اطلاعات تسهیلات
+        </a>
+    </div>
+    <div class="col-md-2 text-center">
+        <button type="button" class="btn btn-default btn-dashboard" data-toggle="modal" data-target="#MizanLoanSearchModal">جستجوی تسهیلات میزان</button>
+    </div>
+    <div class="col-md-3 text-center">
+        <a href="@Url.Action("MyLog",new {UnitId = UPAObj.Unit.Id , ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })" class="btn btn-default btn-dashboard">
+            مشاهده امتیازات من
+        </a>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div id="MizanLoanSearchModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="padding-top:80px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-center title-bold TitrShadow">جستجوی اطلاعات تسهیلات میزان</h4>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <a class="btn btn-default BHamid FontMotavaset inline-searchbox" onclick="SearchLoanMizan()"><i class="fa fa-search"></i></a>
+                    </span>
+                    <input id="MizanLoanTxt" name="MizanLoanTxt" type="number" class="form-control BNazanin FontMotavaset inline-searchbox"  dir="ltr"  placeholder="شماره تسهیلات" value="" onkeyup="if (event.keyCode == 13) SearchLoanMizan()"/>
+                </div>
+                <hr />
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td>
+                                نوع اطلاعات
+                            </td>
+                            <td>
+                               شماره تسهیلات در میزان
+                            </td>
+                            <td>
+                                شماره تسهیلات در این سامانه
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody id="LoanResultMizanTbody" class="text-center">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    function SearchLoanMizan()
+    {
+        var query = document.getElementById('MizanLoanTxt').value;
+        var tbody = document.getElementById('LoanResultMizanTbody');
+        $("#LoanResultMizanTbody").empty();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SearchMizanLoan","InstallmentsFollowUp")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ MizanLoanQuery: query }),
+            dataType: "json",
+            success: function (res) {
+                $.each(res, function (index, item)
+                {
+                    var trtbody = document.createElement('tr');
+                    var UrlLink = "@Html.Raw(Url.Action("RedirectToLoan", "Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id }))" + "&LoanNumber=" + res[index].loanNumber;
+                    var s = '<td>' + res[index].Type + '</td><td>' + res[index].value + '</td><td><a class="btn btn-default" href="' + UrlLink + '">' + res[index].loanNumber + '</a></td>';
+                    trtbody.innerHTML = s;
+                    tbody.appendChild(trtbody);
+                });
+
+                if(res.length == 0)
+                {
+                    var trtbody = document.createElement('tr');
+                    var s = '<td>' + query + '</td><td>موردی یافت نشد!</td><td><a class="btn btn-default" onclick="SearchFailedLoanMizan()">پرونده های ناقص</a></td>';
+                    trtbody.innerHTML = s;
+                    tbody.appendChild(trtbody);
+                }
+            },
+            error: errorFunc
+        });
+    }
+    function errorFunc() {
+        alert('ظاهرا اطلاعات وارد شده نادرست است. لطفا مجددا تلاش نمایید');
+    }
+    function SearchFailedLoanMizan() {
+        var query = document.getElementById('MizanLoanTxt').value;
+        var tbody = document.getElementById('LoanResultMizanTbody');
+        $("#LoanResultMizanTbody").empty();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SearchFailedLoanMizan", "InstallmentsFollowUp")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ MizanLoanQuery: query }),
+            dataType: "json",
+            success: function (res) {
+                $.each(res, function (index, item)
+                {
+                    var trtbody = document.createElement('tr');
+                    var UrlLink = "@Html.Raw(Url.Action("RedirectToFailedLoan", "Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id }))" + "&LoanNumber=" + res[index].loanNumber;
+                    var s = '<td>' + res[index].Type + '</td><td>' + res[index].value + '</td><td><a class="btn btn-default" href="' + UrlLink + '">' + res[index].loanNumber + '</a></td>';
+                    trtbody.innerHTML = s;
+                    tbody.appendChild(trtbody);
+                });
+
+                if(res.length == 0)
+                {
+                    var trtbody = document.createElement('tr');
+                    var s = '<td>' + query + '</td><td>موردی یافت نشد!</td><td>-</td>';
+                    trtbody.innerHTML = s;
+                    tbody.appendChild(trtbody);
+                }
+            },
+            error: errorFunc
+        });
+    }
+
+
+</script>
+
+
+@if (Model != null && Model.LoansWithInstallmentNotification.Count() > 0)
+{
+    bool firstUnPaid = true;
+    bool striped = false;
+<hr />
+<h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+    لیست یادآوری برای اقساط
+</h2>
+<hr />
+<div class="panel-group" id="accordion-InstallmentNotification" role="tablist" aria-multiselectable="true">
+    @foreach (var instnotification in Model.LoansWithInstallmentNotification)
+    {
+        <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+            <div class="panel-heading" role="tab" id="collapse-heading-inst-notification-@instnotification.Id" @if (instnotification.Installment.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) {@Html.Raw("style='background-color:lightgreen;'"); } else if (striped){ @Html.Raw("style='background-color:white;'") ; striped = false;}else { striped = true; }>
+                <div class="row">
+                    <div class="col-md-1">
+                        <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion-InstallmentNotification" href="#collapse-body-inst-notification-@instnotification.Id" aria-expanded="true" aria-controls="collapse-body-inst-notification-@instnotification.Id">
+                            <i class="fa fa-outdent" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="col-md-11">
+                        <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                            قسط شماره @instnotification.Installment.IndexNumber | <span id="header-installment-notification-@instnotification.Id"> شماره تسهیلات: @instnotification.Installment.Loan.LoanNumber </span> 
+                            @if (instnotification.Installment.CallList.Count() > 0)
+                            {<span>| تعداد تماسها: @instnotification.Installment.CallList.Count()</span> } @if (instnotification.Installment.Loan.UpdateList.Count()>0)
+                            {
+                               <span>| آخرین پیگیری: @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(instnotification.Installment.Loan.UpdateList.Last().UpdateTime) توسط: @instnotification.Installment.Loan.UpdateList.Last().User.FirstName @instnotification.Installment.Loan.UpdateList.Last().User.Lastname  </span> 
+                            }
+                        </h4>
+                    </div>
+                </div>
+
+            </div>
+            <div id="collapse-body-inst-notification-@instnotification.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="شماره تسهیلات @instnotification.Installment.Loan.LoanNumber">
+                <div class="panel-body">
+                    <dl class="dl-horizontal LineSpaceZiad">
+                        <dt>تاریخ سررسید: </dt>
+                        <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(instnotification.Installment.DueDate)</dd>
+                        <dt>
+                            توضیحات:
+                        </dt>
+                        <dd id="Installment-notification-Description-@instnotification.Id">
+                            @instnotification.Description
+                        </dd>
+                        <dt>
+                            تاریخ یادآوری: 
+                        </dt>
+                        <dd>
+                           @BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(instnotification.DueDate)
+                        </dd>
+                    </dl>
+                    <hr />
+                    <div class="text-center">
+                        <a class="btn btn-info" href="@Url.Action("Index","Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = instnotification.Installment.LoanId })">نمایش اطلاعات تسهیلات</a>
+                    </div>
+                    <hr />
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>کاربر</th>
+                                <th>زمان تماس</th>
+                                <th>توضیحات</th>
+                                <th>شماره تماس</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body-inst-@instnotification.Installment.Id">
+                            @foreach (var call in instnotification.Installment.CallList)
+                            {
+                                <tr>
+                                    <td>@call.User.FirstName @call.User.Lastname</td>
+                                    <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                    <td>@call.Description</td>
+                                    <td>@call.Address.PhoneNumber</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+}
+
+
+
+@if (Model != null && Model.TodayOverDueLoans.Count() > 0)
+{
+    bool firstUnPaid = true;
+    bool striped = false;
+        <hr />
+        <div style="background-color:darkgreen;color:white;" class="well well-lg">
+        <h2 class="BTitrBold fontkheilibozorg text-center">
+            لیست اقساط امروز
+        </h2>
+        </div>
+        <hr />
+        <div class="panel-group" id="accordion-instd" role="tablist" aria-multiselectable="true">
+            @foreach (var inst in Model.TodayOverDueLoans)
+            {
+                <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+                    <div class="panel-heading" role="tab" id="collapse-heading-instd-@inst.Id" @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) { @Html.Raw("style='background-color:lightgreen;'")       ; } else if (striped) { @Html.Raw("style='background-color:white;'")        ; striped = false; } else { striped = true; }>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion-instd" href="#collapse-body-instd-@inst.Id" aria-expanded="true" aria-controls="collapse-body-instd-@inst.Id">
+                                    <i class="fa fa-outdent" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            <div class="col-md-10">
+                                <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                                    قسط شماره @inst.IndexNumber | <span id="header-installment-instd-@inst.Id"> شماره تسهیلات: @inst.Loan.LoanNumber </span>
+                                    @if (inst.Loan.DebtorList.Count() > 0)
+                                    {
+                                        foreach (var d in inst.Loan.DebtorList)
+                                        {
+                                            <span>@d.Customer.FirstName @d.Customer.Lastname</span>
+                                        }
+                                    }
+
+
+                                    @if (inst.CallList.Count() > 0)
+                                    {<span>| تعداد تماسها: @inst.CallList.Count()</span> }@if (inst.Loan.UpdateList.Count() > 0)
+                                    {
+                                        <span>| آخرین پیگیری: @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(inst.Loan.UpdateList.Last().UpdateTime) توسط: @inst.Loan.UpdateList.Last().User.FirstName @inst.Loan.UpdateList.Last().User.Lastname  </span>
+                                    }
+                                </h4>
+                            </div>
+                            <div class="col-md-1">
+                                @{ 
+                                    var ku = inst.Loan.UpdateList.Where(m => m.UpdateTime.Date == DateTime.Now.Date);
+                                }
+                                @if (ku.Count() > 0 && ku.Count(m => m.Status == BSIActivityManagement.Enum.UpdateLoanStatus.UnderProcess) > ku.Count(m => m.Status == BSIActivityManagement.Enum.UpdateLoanStatus.ProcessCompleted))
+                                {
+                                    <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw" style="color:red;"></i>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="collapse-body-instd-@inst.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="شماره تسهیلات @inst.Loan.LoanNumber">
+                        <div class="panel-body">
+                            <div>
+                                <a class="btn btn-default" href="@Url.Action("Index","Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = inst.LoanId })">نمایش اطلاعات تسهیلات</a>
+                            </div>
+                            <hr />
+                            <dl class="dl-horizontal LineSpaceZiad">
+                                <dt>تاریخ سررسید: </dt>
+                                <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.DueDate)</dd>
+                                <dt>شماره قرارداد: </dt>
+                                <dd>@inst.Loan.LoanNumber</dd>
+                                <dt>تاریخ پرداخت: </dt>
+                                <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.Loan.LoanDate)</dd>
+                            </dl>
+
+                            @if (inst.CallList.Count() > 0)
+                        {
+                                <hr />
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>کاربر</th>
+                                            <th>زمان تماس</th>
+                                            <th>توضیحات</th>
+                                            <th>شماره تماس</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body-instd-@inst.Id">
+                                        @foreach (var call in inst.CallList)
+                                        {
+                                            <tr>
+                                                <td>@call.User.FirstName @call.User.Lastname</td>
+                                                <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                                <td>@call.Description</td>
+                                                <td>@call.Address.PhoneNumber</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </div>
+                </div>
+}
+        </div>
+        }
+
+
+
+        @if (Model != null && Model.WeekOverDueLoans.Count() > 0)
+        {
+            bool firstUnPaid = true;
+            bool striped = false;
+            <hr />
+            <div style="background-color:yellowgreen;color:white;" class="well well-lg">
+                <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                    لیست اقساط دارای دیرکرد بیش از یک روز
+                </h2>
+            </div>
+            <hr />
+            <div class="panel-group" id="accordion-instw" role="tablist" aria-multiselectable="true">
+                @foreach (var inst in Model.WeekOverDueLoans)
+                {
+                    <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+                        <div class="panel-heading" role="tab" id="collapse-heading-instw-@inst.Id" @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) { @Html.Raw("style='background-color:lightgreen;'")      ; } else if (striped) { @Html.Raw("style='background-color:white;'")       ; striped = false; } else { striped = true; }>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion-instw" href="#collapse-body-instw-@inst.Id" aria-expanded="true" aria-controls="collapse-body-instw-@inst.Id">
+                                        <i class="fa fa-outdent" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                <div class="col-md-11">
+                                    <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                                        قسط شماره @inst.IndexNumber | <span id="header-installment-instw-@inst.Id"> شماره تسهیلات: @inst.Loan.LoanNumber </span>
+                                        @if (inst.Loan.DebtorList.Count() > 0)
+                                        {
+                                            foreach (var d in inst.Loan.DebtorList)
+                                            {
+                                                <span>@d.Customer.FirstName @d.Customer.Lastname</span>
+                                            }
+                                        }
+                                         
+                                        
+                                        @if (inst.CallList.Count() > 0)
+                                {<span>| تعداد تماسها: @inst.CallList.Count()</span> }@if (inst.Loan.UpdateList.Count() > 0)
+                                {
+                                    <span>| آخرین پیگیری: @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(inst.Loan.UpdateList.Last().UpdateTime) توسط: @inst.Loan.UpdateList.Last().User.FirstName @inst.Loan.UpdateList.Last().User.Lastname  </span>
+                                }
+                                    </h4>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div id="collapse-body-instw-@inst.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="شماره تسهیلات @inst.Loan.LoanNumber">
+                            <div class="panel-body">
+                                <div>
+                                    <a class="btn btn-default" href="@Url.Action("Index","Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = inst.LoanId })">نمایش اطلاعات تسهیلات</a>
+                                </div>
+                                <hr />
+                                <dl class="dl-horizontal LineSpaceZiad">
+                                    <dt>تاریخ سررسید: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.DueDate)</dd>
+                                    <dt>شماره قرارداد: </dt>
+                                    <dd>@inst.Loan.LoanNumber</dd>
+                                    <dt>تاریخ پرداخت: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.Loan.LoanDate)</dd>
+                                </dl>
+
+                                @if (inst.CallList.Count() > 0)
+                                {
+                                    <hr />
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>کاربر</th>
+                                                <th>زمان تماس</th>
+                                                <th>توضیحات</th>
+                                                <th>شماره تماس</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-body-instw-@inst.Id">
+                                            @foreach (var call in inst.CallList)
+                                    {
+                                                <tr>
+                                                    <td>@call.User.FirstName @call.User.Lastname</td>
+                                                    <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                                    <td>@call.Description</td>
+                                                    <td>@call.Address.PhoneNumber</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    </div>
+}
+            </div>
+                }
+
+
+        @if (Model != null && Model.OneMonthOverdueLoans.Count() > 0)
+        {
+            bool firstUnPaid = true;
+            bool striped = false;
+            <hr />
+            <div style="background-color:lightcoral;color:white;" class="well well-lg">
+                <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                    لیست اقساط دارای دیرکرد بیش از یک هفته
+                </h2>
+            </div>
+            <hr />
+            <div class="panel-group" id="accordion-instom" role="tablist" aria-multiselectable="true">
+                @foreach (var inst in Model.OneMonthOverdueLoans)
+                {
+                    <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+                        <div class="panel-heading" role="tab" id="collapse-heading-instom-@inst.Id" @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) { @Html.Raw("style='background-color:lightgreen;'")    ; } else if (striped) { @Html.Raw("style='background-color:white;'")     ; striped = false; } else { striped = true; }>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion-instom" href="#collapse-body-instom-@inst.Id" aria-expanded="true" aria-controls="collapse-body-instom-@inst.Id">
+                                        <i class="fa fa-outdent" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                <div class="col-md-11">
+                                    <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                                        قسط شماره @inst.IndexNumber | <span id="header-installment-instom-@inst.Id"> شماره تسهیلات: @inst.Loan.LoanNumber </span>
+                                        @if (inst.Loan.DebtorList.Count() > 0)
+                                        {
+                                            foreach (var d in inst.Loan.DebtorList)
+                                            {
+                                                <span>@d.Customer.FirstName @d.Customer.Lastname</span>
+                                            }
+                                        }
+
+                                        @if (inst.CallList.Count() > 0)
+                                        {<span>| تعداد تماسها: @inst.CallList.Count()</span> }@if (inst.Loan.UpdateList.Count() > 0)
+                                        {
+                                            <span>| آخرین پیگیری: @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(inst.Loan.UpdateList.Last().UpdateTime) توسط: @inst.Loan.UpdateList.Last().User.FirstName @inst.Loan.UpdateList.Last().User.Lastname  </span>
+                                        }
+                                    </h4>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div id="collapse-body-instom-@inst.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="شماره تسهیلات @inst.Loan.LoanNumber">
+                            <div class="panel-body">
+                                <div>
+                                    <a class="btn btn-default" href="@Url.Action("Index","Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = inst.LoanId })">نمایش اطلاعات تسهیلات</a>
+                                </div>
+                                <hr />
+                                <dl class="dl-horizontal LineSpaceZiad">
+                                    <dt>تاریخ سررسید: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.DueDate)</dd>
+                                    <dt>شماره قرارداد: </dt>
+                                    <dd>@inst.Loan.LoanNumber</dd>
+                                    <dt>تاریخ پرداخت: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.Loan.LoanDate)</dd>
+                                </dl>
+
+                                @if (inst.CallList.Count() > 0)
+                                {
+                                    <hr />
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>کاربر</th>
+                                                <th>زمان تماس</th>
+                                                <th>توضیحات</th>
+                                                <th>شماره تماس</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-body-instom-@inst.Id">
+                                            @foreach (var call in inst.CallList)
+                                            {
+                                                <tr>
+                                                    <td>@call.User.FirstName @call.User.Lastname</td>
+                                                    <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                                    <td>@call.Description</td>
+                                                    <td>@call.Address.PhoneNumber</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    </div>
+}
+            </div>
+                }
+
+
+
+
+
+
+
+        @if (Model != null && Model.TwoMonthsOverDueLoans != null && Model.TwoMonthsOverDueLoans.Count() > 0)
+        {
+            bool firstUnPaid = true;
+            bool striped = false;
+            <hr />
+            <div style="background-color:crimson;color:white;" class="well well-lg">
+                <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                    لیست اقساط دارای دیرکرد بیش از یک ماه
+                </h2>
+            </div>
+            <hr />
+            <div class="panel-group" id="accordion-insttm" role="tablist" aria-multiselectable="true">
+                @foreach (var inst in Model.TwoMonthsOverDueLoans)
+                {
+                    <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+                        <div class="panel-heading" role="tab" id="collapse-heading-insttm-@inst.Id" @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) { @Html.Raw("style='background-color:lightgreen;'")    ; } else if (striped) { @Html.Raw("style='background-color:white;'")     ; striped = false; } else { striped = true; }>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion-insttm" href="#collapse-body-insttm-@inst.Id" aria-expanded="true" aria-controls="collapse-body-insttm-@inst.Id">
+                                        <i class="fa fa-outdent" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                <div class="col-md-11">
+                                    <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                                        قسط شماره @inst.IndexNumber | <span id="header-installment-insttm-@inst.Id"> شماره تسهیلات: @inst.Loan.LoanNumber </span>
+                                        @if (inst.Loan.DebtorList.Count() > 0)
+                                        {
+                                            foreach (var d in inst.Loan.DebtorList)
+                                            {
+                                                <span>@d.Customer.FirstName @d.Customer.Lastname</span>
+                                            }
+                                        }
+
+                                        @if (inst.CallList.Count() > 0)
+                                        {<span>| تعداد تماسها: @inst.CallList.Count()</span> }@if (inst.Loan.UpdateList.Count() > 0)
+                                        {
+                                            <span>| آخرین پیگیری: @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(inst.Loan.UpdateList.Last().UpdateTime) توسط: @inst.Loan.UpdateList.Last().User.FirstName @inst.Loan.UpdateList.Last().User.Lastname  </span>
+                                        }
+                                    </h4>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div id="collapse-body-insttm-@inst.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="شماره تسهیلات @inst.Loan.LoanNumber">
+                            <div class="panel-body">
+                                <div>
+                                    <a class="btn btn-default" href="@Url.Action("Index","Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = inst.LoanId })">نمایش اطلاعات تسهیلات</a>
+                                </div>
+                                <hr />
+                                <dl class="dl-horizontal LineSpaceZiad">
+                                    <dt>تاریخ سررسید: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.DueDate)</dd>
+                                    <dt>شماره قرارداد: </dt>
+                                    <dd>@inst.Loan.LoanNumber</dd>
+                                    <dt>تاریخ پرداخت: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.Loan.LoanDate)</dd>
+                                </dl>
+
+                                @if (inst.CallList.Count() > 0)
+                                {
+                                    <hr />
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>کاربر</th>
+                                                <th>زمان تماس</th>
+                                                <th>توضیحات</th>
+                                                <th>شماره تماس</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-body-insttm-@inst.Id">
+                                            @foreach (var call in inst.CallList)
+                                            {
+                                                <tr>
+                                                    <td>@call.User.FirstName @call.User.Lastname</td>
+                                                    <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                                    <td>@call.Description</td>
+                                                    <td>@call.Address.PhoneNumber</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    </div>
+}
+            </div>
+                }
+
+
+        @if (Model != null && Model.MoreThanTwoMonthsOverDueLoans != null && Model.MoreThanTwoMonthsOverDueLoans.Count() > 0)
+        {
+            bool firstUnPaid = true;
+            bool striped = false;
+            <hr />
+            <div style="background-color:red;color:white;" class="well well-lg">
+                <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                    لیست اقساط دارای دیرکرد بیش از دو ماه
+                </h2>
+            </div>
+            <hr />
+            <div class="panel-group" id="accordion-instmttm" role="tablist" aria-multiselectable="true">
+                @foreach (var inst in Model.MoreThanTwoMonthsOverDueLoans)
+                {
+                    <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+                        <div class="panel-heading" role="tab" id="collapse-heading-instmttm-@inst.Id" @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) { @Html.Raw("style='background-color:lightgreen;'")   ; } else if (striped) { @Html.Raw("style='background-color:white;'")    ; striped = false; } else { striped = true; }>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion-instmttm" href="#collapse-body-instmttm-@inst.Id" aria-expanded="true" aria-controls="collapse-body-instmttm-@inst.Id">
+                                        <i class="fa fa-outdent" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                <div class="col-md-11">
+                                    <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                                        قسط شماره @inst.IndexNumber | <span id="header-installment-notification-@inst.Id"> شماره تسهیلات: @inst.Loan.LoanNumber </span>  |
+                                        @if (inst.Loan.DebtorList.Count() > 0)
+                                        {
+                                            foreach (var d in inst.Loan.DebtorList)
+                                            {
+                                                <span>@d.Customer.FirstName @d.Customer.Lastname</span>
+                                            }
+                                        }
+
+                                        @if (inst.CallList.Count() > 0)
+                                        {<span>تعداد تماسها: @inst.CallList.Count()</span> }@if (inst.Loan.UpdateList.Count() > 0)
+                                        {
+                                            <span>| آخرین پیگیری: @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(inst.Loan.UpdateList.Last().UpdateTime) توسط: @inst.Loan.UpdateList.Last().User.FirstName @inst.Loan.UpdateList.Last().User.Lastname  </span>
+                                        }
+                                    </h4>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div id="collapse-body-instmttm-@inst.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="شماره تسهیلات @inst.Loan.LoanNumber">
+                            <div class="panel-body">
+                                <div>
+                                    <a class="btn btn-default" href="@Url.Action("Index","Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = inst.LoanId })">نمایش اطلاعات تسهیلات</a>
+                                </div>
+                                <hr />
+                                <dl class="dl-horizontal LineSpaceZiad">
+                                    <dt>تاریخ سررسید: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.DueDate)</dd>
+                                    <dt>شماره قرارداد: </dt>
+                                    <dd>@inst.Loan.LoanNumber</dd>
+                                    <dt>تاریخ پرداخت: </dt>
+                                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.Loan.LoanDate)</dd>
+                                </dl>
+
+                                @if (inst.CallList.Count() > 0)
+                                {
+                                    <hr />
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>کاربر</th>
+                                                <th>زمان تماس</th>
+                                                <th>توضیحات</th>
+                                                <th>شماره تماس</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-body-instmttm-@inst.Id">
+                                            @foreach (var call in inst.CallList)
+                                            {
+                                                <tr>
+                                                    <td>@call.User.FirstName @call.User.Lastname</td>
+                                                    <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                                    <td>@call.Description</td>
+                                                    <td>@call.Address.PhoneNumber</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    </div>
+}
+            </div>
+                }

@@ -1,0 +1,54 @@
+﻿@model BSIActivityManagement.ViewModel.CreateQualityRuleViewModel
+
+@{
+    ViewBag.Title = "ایجاد یک قانون جدید";
+    Layout = "~/Views/Shared/_PersianLayoutLogout.cshtml";
+}
+
+<h2>ایجاد قانون کیفیت برای فعالیت @Model.Activity.Name</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        
+        @Html.Hidden("ActivityId",Model.Activity.Id)
+        <div class="row rowLink">
+            <div class="col-center-content">
+                <div class="panel panel-default LinkPanel box-btn-shadow BTitrBold FontKoochik">
+                    <div class="panel-body LinkPanelBody">
+                        <img src="@Url.Action("GetImage","Home",new { Id = Model.Activity.Type.ImageId })"  />
+                    </div>
+                        <div class="panel-footer text-center">
+                            @Model.Activity.Name
+                        </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="form-group">
+            @Html.Label("انتخاب شاخص", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @foreach(var ind in Model.IndexId)
+                {
+                    @Html.RadioButton("IndexId", ind.Id)
+                    @Html.Label(ind.Title, new {@for = ind.Id })
+                    <br /><br />
+                }
+                @Html.ValidationMessageFor(model => model.IndexId, "", new { @class = "text-danger" })
+            </div>
+        </div><hr />
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="ثبت" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="@Url.Action("Index","sysadmin")#QualityIndex" class="btn btn-default">بازگشت</a>
+</div>

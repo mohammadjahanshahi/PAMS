@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
 using BSIActivityManagement.DAL;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BSIActivityManagement.ViewModel
 {
@@ -31,6 +32,7 @@ namespace BSIActivityManagement.ViewModel
         public IEnumerable<AMActivityItemType> ActivityItemTypeArray { get; set; }
         public IEnumerable<AMUserType> UserTypeArray { get; set; }
         public IEnumerable<AMAccess> AccessArray { get; set; }
+        public IEnumerable<AMQualityIndex> QualityIndexArray { get; set; }
 
         public int? CurrentOrgId { get; set; }
         public int? CurrentOrgParentId { get; set; }
@@ -193,6 +195,8 @@ namespace BSIActivityManagement.ViewModel
         public AMUnitOfOrg Unit { get; set; }
         public AMProcess Process { get; set; }
         public AMActivity Activity { get; set; }
+        public AMUser CurrentUser { get; set; }
+        public bool CreateMileStoneAccess { get; set; }
     }
 
     public class ActItemTypeGroup
@@ -224,9 +228,9 @@ namespace BSIActivityManagement.ViewModel
     {
         public IEnumerable<NavViewModel> Navigation { get; set; }
         public IEnumerable<ActItemTypeGroup> ActivityItemGropus { get; set; }
-        public int UnitId { get; set; }
-        public int ProcessId { get; set; }
-        public int ActivityId { get; set; }
+        public AMUnitOfOrg Unit { get; set; }
+        public AMProcess Process { get; set; }
+        public AMActivity Activity { get; set; }
     }
 
     public class SysAdminViewModelProcessActivities
@@ -236,4 +240,253 @@ namespace BSIActivityManagement.ViewModel
         public int UnitId { get; set; }
         public int ProcessId { get; set; }
     }
+
+    public class NewRevisionViewModel
+    {
+        public AMActivity Activity { get; set; }
+        public AMUnitOfOrg Unit { get; set; }
+        public AMUser User { get; set; }
+        public AMProcess Process { get; set; }
+
+
+        [Display(Name = "شرح عدم انطباق")]
+        public string ConflictDescription { get; set; }
+        [Display(Name = "ریشه یابی عدم انطباق")]
+        public string ConflictSource { get; set; }
+        [Display(Name = "اقدام اصلاحی پیشنهادی")]
+        public string ConflictSolution { get; set; }
+    }
+
+    public class IndexRevisionViewModel
+    {
+        public int Id { get; set; }
+        public PersianDateViewModel PersianDate { get; set; }
+        public int Days { get; set; }
+        public int Hours { get; set; }
+        public string ActivityTitle { get; set; }
+        public string ConflictDescription { get; set; }
+        public string CurrentStatus { get; set; }
+        public int LevelStatus { get; set; }
+    }
+
+    public class IndexRevisionFullViewModel
+    {
+        public PersianDateViewModel PersianDate { get; set; }
+        public int Days { get; set; }
+        public int Hours { get; set; }
+        public string CurrentStatus { get; set; }
+        public int LevelStatus { get; set; }
+        public AMRevision Revision { get; set; }
+    }
+
+    public class PersianDateViewModel
+    {
+        public int DateYr { get; set; }
+        public int DateMM { get; set; }
+        public int DateDD { get; set; }
+        public int DateHR { get; set; }
+        public int DateMI { get; set; }
+        public int DateSE { get; set; }
+    }
+
+    public class RevisionHistoryViewModel
+    {
+        public PersianDateViewModel PersianDate { get; set; }
+
+        public int Days { get; set; }
+        public int Hours { get; set; }
+
+        public AMRevisionStatus Status { get; set; }
+    }
+
+    public class CreateQualityRuleViewModel
+    {
+        public AMActivity Activity { get; set; }
+        public AMProcess Process { get; set; }
+        public IEnumerable<AMQualityIndex> IndexId { get; set; }
+    }
+
+    public class CreateQualityRulePostBackViewModel
+    {
+        public int Id { get; set; }
+        [Required(ErrorMessage = "فعالیت انتخابی نادرست است")]
+        public int ActivityId { get; set; }
+        [Required(ErrorMessage = "شاخص انتخابی نادرست است")]
+        public int IndexId { get; set; }
+        public int ProcessId { get; set; }
+    }
+
+    public class QualityRuleIndexViewModel
+    {
+        public IEnumerable<AMQualityRule> RuleList { get; set; }
+        public AMActivity Activity { get; set; }
+        public int ProcessId { get; set; }
+    }
+
+    public class QualityMileStoneCreate
+    {
+        public IEnumerable<AMQualityRule> RuleList { get; set; }
+        public AMQualityMileStone MileStone { get; set; }
+    }
+
+    public class UnitProcessActViewModel
+    {
+        public int U { get; set; }
+        public int P { get; set; }
+        public int A { get; set; }
+    }
+
+    public class UnitProcessActObjectViewModel
+    {
+            public AMUnitOfOrg Unit { get; set; }
+            public AMProcess Process { get; set; }
+            public AMActivity Activity { get; set; }
+    }
+
+    public class RegisterActivityViewModel
+    {
+        public int UnitId { get; set; }
+        public int ProcessId { get; set; }
+        public int ActivityId { get; set; }
+        public int UserId { get; set; }
+
+        [Display(Name = "قانون کیفیت")]
+        [Required(ErrorMessage = "قانون کیفیت انتخاب نشده است")]
+        public int RuleId { get; set; }
+
+        [Display(Name = "توضیحات")]
+        [Required(ErrorMessage = "ورود توضیحات الزامیست")]
+        public string Description { get; set; }
+
+        [Display(Name = "داده مرتبط")]
+        [Required(ErrorMessage = "ورود داده مرتبط الزامیست")]
+        public decimal ActivityData { get; set; }
+    }
+
+    public class ActivityQualityIndexViewModel
+    {
+        public AMActivity Activity { get; set; }
+        public AMUnitOfOrg Unit { get; set; }
+        public AMProcess Process { get; set; }
+        
+        public IEnumerable<MileStoneStatusViewModel> MileStoneStatusList { get; set; }
+
+    }
+
+    public class MileStoneStatusViewModel
+    {
+        public AMQualityMileStone MileStone { get; set; }
+        public TimeSpan RemainingTimeStatus { get; set; }
+        public int RemainingTimePercentage { get; set; }
+        public Decimal GoalStatus { get; set; }
+        public int GoalPercentage { get; set; }
+        public Decimal GoalRequiredChange { get; set; }
+
+        public bool IsAlive { get; set; }
+    }
+
+    public class LoanRegisterationViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "شماره تسهیلات")]
+        [Required(ErrorMessage = "ورود شماره تسهیلات الزامی است")]
+        [MaxLength(13, ErrorMessage = "حداکثر تعداد 13 عدد قابل قبول است")]
+        [Index(IsUnique = true)]
+        public string LoanNumber { get; set; }
+
+        [Display(Name = "نوع تسهیلات")]
+        [Required(ErrorMessage = "انتخاب نوع تسهیلات الزامی است")]
+        public Enum.LoanType LoanType { get; set; }
+
+        [Display(Name = "مبلغ کل وام")]
+        [Required(ErrorMessage = "ورود مبلغ کل وام الزامی است")]
+        public decimal LoanTotalAmount { get; set; }
+
+        [Display(Name = "تاریخ پرداخت وام")]
+        [Required(ErrorMessage = "ورود تاریخ پرداخت وام الزامی است")]
+        public DateTime LoanDate { get; set; }
+
+        [Display(Name = "تعداد اقساط وام")]
+        [Required(ErrorMessage = "ورود تعداد اقساط وام الزامی است")]
+        public int TotalInstallments { get; set; }
+
+        [Display(Name = "فاصله زمانی اقساط وام")]
+        [Required(ErrorMessage = "ورود فاصله طمانی اقساط وام الزامی است")]
+        public Enum.MonthNumbers InstallmentDuration { get; set; }
+
+        public int UnitId { get; set; }
+
+    }
+
+    public class FollowUpIndexViewModel
+    {
+        public IEnumerable<AMInstallment> TodayOverDueLoans { get; set; }
+        public IEnumerable<AMInstallment> WeekOverDueLoans { get; set; }
+        public IEnumerable<AMInstallment> OneMonthOverdueLoans { get; set; }
+        public IEnumerable<AMInstallment> TwoMonthsOverDueLoans { get; set; }
+        public IEnumerable<AMInstallment> MoreThanTwoMonthsOverDueLoans { get; set; }
+        public IEnumerable<AMInstallmentNotification> LoansWithInstallmentNotification { get; set; }
+        public IEnumerable<AMCallNotification> LoansWithCallNotification { get; set; }
+    }
+
+    public class UserLogViewModel
+    {
+        public AMUser ThisUser { get; set; }
+        public IEnumerable<AMCall> CallList { get; set; }
+        public IEnumerable<AMInstallmentUserLog> SetInstallmentStatusList { get; set; }
+        public IEnumerable<AMInstallmentNotificationUserLog> SetInstallmentNotificationList { get; set; }
+        public IEnumerable<AMInstallmentNotificationUserLog> DoneInstallmentNotificationList { get; set; }
+        public IEnumerable<AMUpdateLoanLog> UpdateLogList { get; set; }
+        public int FollowUpScore { get; set; }
+    }
+
+    public class ConversionIndexViewModel
+    {
+        public int MizanCustomerRecordsCount { get; set; }
+        public int MizanLoanRecordsCount { get; set; }
+        public int MizanCustomerRecordsUnConvertedCount { get; set; }
+        public int MizanLoanRecordsUnConvertedCount { get; set; }
+        public int MizanLoanRecordsConvertedSuccessfullyCount { get; set; }
+        public int MizanCustomerRecordsConvertedSuccessfullyCount { get; set; }
+        public int MizanCustomerRecordsConvertedWithWarningCount { get; set; }
+        public int MizanLoanRecordsConvertedWithWarningCount { get; set; }
+        public int MizanCustomerRecordsConversionFailedCount { get; set; }
+        public int MizanLoanRecordsConversionFailedCount { get; set; }
+
+        public LoanConvertFailureInfoViewModel Statistics { get; set; }
+
+        public IEnumerable<AMCustomerRecordMizan> CustomerConversionFailed { get; set; }
+        public IEnumerable<AMLoanRecordMizan> LoanConversionFailed { get; set; }
+
+        public IEnumerable<AMCustomerRecordMizan> CustomerConvertedWithWarning { get; set; }
+        public IEnumerable<AMLoanRecordMizan> LoanConvertedWithWarning { get; set; }
+    }
+
+    public class LoanConvertFailureInfoViewModel
+    {
+        [Display(Name = "خطای عمومی")]
+        public int Failure { get; set; }
+        [Display(Name = "از قبل موجود")]
+        public int AlreadyExist { get; set; }
+        [Display(Name = "خطا در اقساط")]
+        public int InstallmentError { get; set; }
+        [Display(Name = "خطا در شناسایی شعبه بانک صادرات")]
+        public int BSIBranchError { get; set; }
+        [Display(Name = "خطا در شناسایی ضامن و متعهد ")]
+        public int DebtorRefereeError { get; set; }
+        [Display(Name = " خطا در شناسایی متعهد")]
+        public int DebtorError { get; set; }
+        [Display(Name = "خطای تعداد اقساط")]
+        public int InstallmentCountError { get; set; }
+        [Display(Name = "خطای فاصله اقساط")]
+        public int InstallmentPeriodError { get; set; }
+        [Display(Name = "خطای نوع تسهیلات میزان")]
+        public int MizanLoanTypeError { get; set; }
+        [Display(Name = "خطای تاریخ اعطای تسهیلات")]
+        public int LoanDateError { get; set; }
+        [Display(Name = "تعداد کل تسهیلات ناموفق")]
+        public int TotalFailed { get; set; }
+    }
+
 }

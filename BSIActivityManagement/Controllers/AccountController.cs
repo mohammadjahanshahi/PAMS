@@ -9,6 +9,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using BSIActivityManagement.Models;
+using BSIActivityManagement.Authorization;
+using BSIActivityManagement.Extensions;
+using BSIActivityManagement.DAL;
 
 namespace BSIActivityManagement.Controllers
 {
@@ -232,11 +235,11 @@ namespace BSIActivityManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                var user = await UserManager.FindByNameAsync(model.UserName);
+                if (user == null)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
-                    return View("ForgotPasswordConfirmation");
+                    return View("UserNotFound");
                 }
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
@@ -245,12 +248,91 @@ namespace BSIActivityManagement.Controllers
                 // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
                 // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
                 // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                
+                int RandomCode = new Random().Next(111111, 999999);
+
+                AMUser aMUser = DmlObj.GetAmUserFromAspUser(user.Id);
+                if (aMUser == null)
+                    return View("Error");
+
+                AMForgotPasswordCode ForgotModel = new AMForgotPasswordCode {UserId = aMUser.Id, UserName = user.UserName, Code = RandomCode, Expiration = DateTime.Now.AddDays(1) };
+
+                if (DmlObj.AddForgotPasswordCode(ForgotModel))
+                {
+                    return RedirectToAction("ResetPasswordByCode", new { AspUserId = user.Id });
+                }
             }
 
             // If we got this far, something failed, redisplay form
             return View(model);
         }
 
+        [AllowAnonymous]
+        public ActionResult ResetPasswordByCode(string AspUserId)
+        {
+            ViewBag.AspUserId = AspUserId;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResetPasswordByCode(ForgotPasswordCodeViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = DmlObj.GetAspUserById(model.AspUserId);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return View("Error");
+            }
+
+            var UserCodeList = DmlObj.GetForgotCodeByAspUserId(model.AspUserId);
+            if(UserCodeList == null)
+            {
+                ViewData.ModelState.AddModelError("Code", "هیچ کدی برای این کاربری قبلا ثبت نشده است لطفا مجددا تلاش نمایید");
+                return View(model);
+            }
+
+            UserCodeList = UserCodeList.Where(m => m.Code == model.Code);
+            if (UserCodeList == null)
+            {
+                ViewData.ModelState.AddModelError("Code", "کد وارد شده نا معتبر است");
+                return View(model);
+            }
+
+            UserCodeList = UserCodeList.Where(m => m.Expiration > DateTime.Now);
+            if (UserCodeList == null)
+            {
+                ViewData.ModelState.AddModelError("Code", "کد وارد شده منقضی شده است");
+                return View(model);
+            }
+            UserCodeList = UserCodeList.Where(m => m.UsedStatus == Enum.ForgotPasswordCodeStatus.UnUsed);
+            if (UserCodeList == null)
+            {
+                ViewData.ModelState.AddModelError("Code", "کد وارد شده قبلا استفاده شده است");
+                return View(model);
+            }
+
+            if (UserCodeList.Count() == 0)
+                return View("Error");
+
+            var codeModel = UserCodeList.FirstOrDefault();
+
+            var resultRemove = UserManager.RemovePassword(user.Id);
+            var resultAdd = UserManager.AddPassword(user.Id, model.Password);
+            if (resultRemove.Succeeded && resultAdd.Succeeded)
+            {
+                codeModel.UsedStatus = Enum.ForgotPasswordCodeStatus.Used;
+                DmlObj.SetForgotPasswordAsUsed(codeModel);
+                return RedirectToAction("Login", "Account");
+            }
+            return View("Error");
+        }
         //
         // GET: /Account/ForgotPasswordConfirmation
         [AllowAnonymous]
@@ -432,6 +514,42 @@ namespace BSIActivityManagement.Controllers
         {
             return View();
         }
+
+
+        public ActionResult ResetPasswordAdmin()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AMAuthorization(AccessKey = "SYSTEM_CHANGE")]
+
+        public async Task<ActionResult> ResetPasswordAdmin(ResetPasswordAdminViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await UserManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return View("Error");
+            }
+
+            var resultRemove = UserManager.RemovePassword(user.Id);
+            var resultAdd = UserManager.AddPassword(user.Id, model.Password);
+
+            
+            
+            if (resultRemove.Succeeded && resultAdd.Succeeded)
+            {
+                return RedirectToAction("Index", "SysAdmin");
+            }
+            AddErrors(resultAdd);
+            return View();
+        }
+
 
         protected override void Dispose(bool disposing)
         {

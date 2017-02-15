@@ -1,0 +1,56 @@
+﻿@model IEnumerable<BSIActivityManagement.ViewModel.IndexRevisionViewModel>
+@{
+    ViewBag.Title = "مشاهده اقدامات اصلاحی یک واحد";
+    ViewBag.Nav = ViewBag.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">لیست اقدامات اصلاحی ثبت شده قبلی</h2>
+<hr />
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    شماره ارجاع
+                </th>
+                <th>
+                    تاریخ
+                </th>
+                <th>
+                    نام فعالیت
+                </th>
+                <th>
+                    عنوان
+                </th>
+                <th>
+                    آخرین وضعیت
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var rev in Model)
+            {
+                string classstatus = "RevisionStatusColor_" + rev.LevelStatus;
+
+                    <tr class="classstatus">
+                    <td> 
+                        @rev.Id
+                    </td>
+                    <td>
+                       @if (rev.Days > 0) { Html.Raw(rev.Days + "روز پیش"); } else if (rev.Hours > 0) { Html.Raw(rev.Hours + "ساعت پیش"); } else { Html.Raw("کمتر از یکساعت پیش"); } @rev.PersianDate.DateYr/@rev.PersianDate.DateMM/@rev.PersianDate.DateDD - @rev.PersianDate.DateHR:@rev.PersianDate.DateMI:@rev.PersianDate.DateSE
+                    </td>
+                    <td>
+                        @rev.ActivityTitle
+                    </td>
+                    <td>
+                        @rev.ConflictDescription
+                    </td>
+                    <td>
+                        @Html.ActionLink(rev.CurrentStatus, "History", new { RevisionId = rev.Id, UnitId = ViewBag.CurrentUnitId })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

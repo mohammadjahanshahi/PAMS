@@ -1,0 +1,917 @@
+﻿@model BSIActivityManagement.DAL.AMLoan
+
+@{
+    ViewBag.Title = "مشاهده اطلاعات تسهیلات";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    BSIActivityManagement.ViewModel.UnitProcessActObjectViewModel UPAObj = ViewBag.UPA;
+    IEnumerable<BSIActivityManagement.DAL.AMCustomer> Customer = ViewBag.Customer;
+}
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage", "Home", new { id = UPAObj.Activity.Type.Image.Id })" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @UPAObj.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @UPAObj.Activity.Name در فرآیند <span class="FontKheiliBozorg title-bold">@UPAObj.Process.Name</span> از @UPAObj.Unit.Name
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Index", "InstallmentsFollowUp", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+@using (Html.BeginForm("Index"))
+{
+    <div class="form-horizontal">
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LoanNumber, htmlAttributes: new { @class = "control-label col-md-2", @style = "margin-bottom:5px;" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LoanNumber, new { htmlAttributes = new { @class = "form-control", type = "number", dir = "ltr", @style = "display:inline;margin-bottom:5px;" } }) 
+                <input type="submit" value="مشاهده" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" style="margin-bottom:5px;"/> | <a href="@Url.Action("Index", "InstallmentsFollowUp", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id})" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition" style="margin-bottom:5px;">بازگشت</a>
+                @Html.ValidationMessageFor(model => model.LoanNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @Html.Hidden("UnitId", UPAObj.Unit.Id)
+        @Html.Hidden("ProcessId", UPAObj.Process.Id)
+        @Html.Hidden("ActivityId", UPAObj.Activity.Id)
+    </div>
+}
+<hr />
+
+@if (Model != null && Model.Id != 0)
+{
+    <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+        لیست پیگیریهای قبلی
+    </h2>
+    <hr />
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    نام کاربر
+                </th>
+                <th>
+                    نام خانوادگی
+                </th>
+                <th>
+                    زمان عملیات
+                </th>
+                <th>
+                    نوع عملیات
+                </th>
+            </tr>
+        </thead>
+        <tbody id="tbody-update-log">
+            @foreach (var log in Model.UpdateList)
+            {
+                <tr>
+                    <td>
+                        @log.User.FirstName
+                    </td>
+                    <td>
+                        @log.User.Lastname
+                    </td>
+                    <td>
+                        @BSIActivityManagement.Extensions.DisplayExtension.ElapsedTime(log.UpdateTime)
+                    </td>
+                    <td>
+                        @if (log.Status == BSIActivityManagement.Enum.UpdateLoanStatus.UnderProcess)
+                        {
+                            <span>شروع پیگیری</span>
+                        }
+                        else if (log.Status == BSIActivityManagement.Enum.UpdateLoanStatus.ProcessCompleted)
+                        {
+                            <span>پایان پیگیری</span>
+                        }
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+    <hr />
+    <div class="text-center">
+        <a class="btn btn-default" href="#!" id="start-followup-btn" onclick="StartFollowUp(@Model.Id)"><i class="fa fa-check"></i>شروع پیگیری </a>
+        <a class="btn btn-default" href="#!" id="update-loan-btn" onclick="UpdateLoan(@Model.Id)"><i class="fa fa-check"></i>پایان پیگیری </a>
+    </div>
+}
+<hr />
+<div class="row">
+    
+    @if (Customer != null && Customer.Count() > 0)
+    {
+        <div class="col-md-6">
+            @foreach (var cust in Customer)
+            {
+            <div class="panel panel-default">
+                <div class="panel-heading BTitrBold TitrShadow fontkheilibozorg text-center">شماره مشتری : @cust.CustomerNumber</div>
+                <div class="panel-body">
+                    <dl class="dl-horizontal LineSpaceZiad">
+                        <dt>نام: </dt>
+                        <dd>@cust.FirstName</dd>
+                        <dt>نام خانوادگی: </dt>
+                        <dd>@cust.Lastname</dd>
+                        <dt>نوع مشتری: </dt>
+                        <dd>@BSIActivityManagement.Extensions.HtmlExtensions.CustomerEnumDisplayNameFor(cust.CustomerType)</dd>
+                        @{
+                            foreach (var pc in cust.PersonalCodeList)
+                            {
+                                <dt>
+                                    شماره ملی ثبت شده:
+                                </dt>
+                                <dd>
+                                    @pc.NationalCode
+                                </dd>
+                            }
+                        }
+
+                        @{
+                            foreach (var corp in cust.AsCorporationMemberList)
+                            {
+                                <dt>
+                                    شناسه ملی شرکت : 
+                                </dt>
+                                <dd>
+                                    @corp.Corporation.NationalCode
+                                </dd>
+                            }
+                        }
+                        
+                        @{ 
+                            foreach(var mc in cust.MizanCustomerInfoList)
+                            {
+                                <dt>
+                                    شماره مشتری میزان: 
+                                </dt>
+                                <dd>
+                                    @mc.MizanCustomer.CustomerNumber
+                                </dd>
+                            }
+                        }
+                        
+                        <dt>
+                            شماره مشتری:
+                        </dt>
+                        <dd>
+                            <a class="btn btn-info" href="@Url.Action("Index", "Customer", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, CustomerId = cust.Id})">@cust.CustomerNumber</a>
+                        </dd>
+                    </dl>
+                    <br />
+                    <div class="text-center">
+                        <a class="btn btn-info" href="@Url.Action("Edit", "Customer", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, CustomerId = cust.Id })"><i class="fa fa-edit"></i>ویرایش اطلاعات </a>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    }
+    
+    @{
+        int col = 6;
+        if (Customer == null || Customer.Count() == 0)
+        {
+            col = 12;
+        }
+     }
+
+    <div class="col-md-@col">
+@if (Model != null && Model.Id != 0)
+{
+        <div class="panel panel-default">
+            <div class="panel-heading BTitrBold TitrShadow fontkheilibozorg text-center">شماره تسهیلات : @Model.LoanNumber</div>
+            <div class="panel-body">
+                <dl class="dl-horizontal LineSpaceZiad">
+                    <dt>نوع تسهیلات: </dt>
+                    <dd>@BSIActivityManagement.Extensions.HtmlExtensions.LoanEnumDisplayNameFor(Model.LoanType)</dd>
+                    <dt>تاریخ تسهیلات: </dt>
+                    <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(Model.LoanDate)</dd>
+                    <dt>مبلغ تسهیلات: </dt>
+                    <dd id="Amount-@Html.Raw(Model.Id)">@Html.DisplayFor(m => m.LoanTotalAmount)</dd>
+                    <dt>تعداد اقساط: </dt>
+                    <dd> @Model.InstallmentList.Count() </dd>
+                    @{
+                        foreach (var ext in Model.ExtraInfoList)
+                        {
+                            <dt>@BSIActivityManagement.Extensions.HtmlExtensions.LoanExtraInfoEnumDisplayNameFor(ext.ValueType):</dt>
+                            <dd>@ext.Value</dd>
+                        }
+                        foreach (var m in Model.MizanLoanInfoList)
+                        {
+                            <dt>
+                                کد شعبه میزان: 
+                            </dt>
+                            <dd>
+                                @m.MizanLoan.MizanBranchCode
+                            </dd>
+                        }
+                    }
+                </dl>
+                    <div class="text-center">
+                        <a class="btn btn-info" href="@Url.Action("Edit", "Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, LoanId = Model.Id })"><i class="fa fa-edit"></i> ویرایش  </a> |
+                        <a class="btn btn-info" href="@Url.Action("Delete", "Loan", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, id = Model.Id })"><i class="fa fa-remove"></i> حذف </a>
+                    </div>
+            </div>
+        </div>
+}
+else if (Model != null)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading BTitrBold TitrShadow fontkheilibozorg text-center"> جستجو برای : @Model.LoanNumber</div>
+        <div class="panel-body">
+            <dl class="dl-horizontal LineSpaceZiad">
+                <dt>نتیجه: </dt>
+                <dd>این شماره تسهیلات ثبت نشده است</dd>
+            </dl>
+        </div>
+    </div>
+}
+else if (Model == null)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading BTitrBold TitrShadow fontkheilibozorg text-center">جستجوی تسهیلات </div>
+        <div class="panel-body">
+            <dl class="dl-horizontal LineSpaceZiad">
+                <dt></dt>
+                <dd>شماره تسهیلات را در قسمت بالا وارد نمایید</dd>
+            </dl>
+        </div>
+    </div>
+}
+
+    </div>
+</div>
+
+<hr />
+@if (Model != null && Model.Id != 0)
+{
+<h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+    لیست یادآوریها
+</h2>
+<hr />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>شماره قسط</th>
+            <th>تاریخ اعلام یادآوری</th>
+            <th>توضیحات</th>
+            <th>اقدام شد</th>
+        </tr>
+    </thead>
+    <tbody id="table-body-Notification">
+        @foreach (var inst in Model.InstallmentList)
+        {
+            foreach (var alert in inst.NotificationList)
+            {
+            <tr>
+                <td>@inst.IndexNumber</td>
+                <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(alert.DueDate)</td>
+                <td>@alert.Description</td>
+                <td>
+                @if (alert.Status == BSIActivityManagement.Enum.NotificationStatus.Unseen)
+                {
+                  <a href="#!" class="btn btn-info" onclick="NotificationSeen(@alert.Id)" id="btn-notification-seen-@alert.Id">اقدام </a>
+                }
+                else
+                {
+                    <a href="#!" class="btn btn-info disabled"  id="btn-notification-seen-@alert.Id">اقدام شد</a>
+                }
+                </td>
+                
+            </tr>
+            }
+        }
+    </tbody>
+</table>
+
+}
+
+    @if (Model != null && Model.Id != 0)
+    {
+<hr />
+<h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+    لیست ضامنین تسهیلات
+</h2>
+<hr />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>شماره مشتری</th>
+            <th>نام</th>
+            <th>نام خانوادگی</th>
+            <th>توضیحات</th>
+            <th>حذف</th>
+        </tr>
+    </thead>
+    <tbody id="table-body-referee">
+        @foreach (var referee in Model.RefereeLists)
+        {
+            <tr id="row-referee-@referee.Id">
+                <td><a class="btn btn-info" href="@Url.Action("Index", "Customer", new { UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, CustomerId = referee.CustomerId })"> @referee.Customer.CustomerNumber</a></td>
+                <td>@referee.Customer.FirstName</td>
+                <td>@referee.Customer.Lastname</td>
+                <td>
+                    @referee.Description
+                </td>
+                <td>
+                    <a href="#!" onclick="RemoveReferee(@referee.Id)" id="Remove-Referee-Btn-@referee.Id" class="btn btn-danger"><i class="fa fa-remove"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<button type="button" class="btn btn-info" data-toggle="modal" data-target="#Add-referee-Modal"><i class="fa fa-plus"></i>افزودن ضامن</button>
+<hr />
+<!--Modal-->
+<div id="Add-referee-Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="padding-top:80px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">افزودن ضامن</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <label class="control-label col-md-4" for="Referee-CustomerNumber-Input">شماره مشتری ضامن</label>
+                    <div class="col-md-8">
+                        <input class="form-control text-box single-line" data-val="true" data-val-required="ورودشماره مشتری ضامن الزامی است" dir="ltr" id="Referee-CustomerNumber-Input" name="Referee-CustomerNumber-Input" placeholder="شماره مشتری ضامن" type="number" value="" />
+                        <span class="field-validation-valid text-danger" data-valmsg-for="Referee-CustomerNumber-Input" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                    <label class="control-label col-md-4" for="Referee-Description-Input">توضیحات: </label>
+                    <div class="col-md-8">
+                        <textarea cols="10" class="form-control" data-val="true" data-val-required="ورود توضیحات الزامی است" dir="rtl" id="Referee-Description-Input" name="Referee-Description-Input" placeholder="توضیحات" type="text" value="" style="height:60px;"></textarea>
+                        <span class="field-validation-valid text-danger" data-valmsg-for="Referee-Description-Input" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <a href="#!" onclick="RegisterReferee(@Model.Id)" id="Referee-Registeration-Btn" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" style="margin-bottom:5px;">ثبت</a> | <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- End Modal Notification -->
+
+        foreach (var cust in Customer)
+        {
+            <div class="panel panel-default">
+                <div class="panel-heading BTitrBold TitrShadow fontkheilibozorg text-center">اطلاعات تماس مشتری</div>
+                <div class="panel-body">
+                    @if (cust != null && cust.Id != 0 && cust.AddressList.Count() > 0)
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>شماره تماس</th>
+                                    <th>نوع شماره</th>
+                                    <th>نشانی</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var addr in cust.AddressList)
+                        {
+                                    <tr>
+                                        <td>@addr.PhoneNumber</td>
+                                        <td>@BSIActivityManagement.Extensions.HtmlExtensions.PhoneEnumDisplayNameFor(addr.PhoneType)</td>
+                                        <td>@addr.Address</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <dl class="dl-horizontal">
+                            <dt></dt>
+                            <dd> هیچ آدرسی ثبت نشده است</dd>
+                        </dl>
+                    }
+                </div>
+            </div>
+        }
+
+    }
+
+@if (Model != null && Model.Id != 0)
+{
+    <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+        اطلاعات اقساط تسهیلات و پی گیری ها
+    </h2>
+    <hr />
+    <!-- Accordion -->
+    if (Model.InstallmentList.Count() > 0)
+    {
+        bool firstUnPaid = true;
+        bool striped = false;
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            @foreach (var inst in Model.InstallmentList)
+            {
+                <div class="panel panel-default" style="border-radius:0px 0px 0px 0px;">
+                    <div class="panel-heading" role="tab" id="collapse-heading-@inst.Id" @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid) {@Html.Raw("style='background-color:lightgreen;'"); } else if (striped) {@Html.Raw("style='background-color:white;'"); striped = false; } else { striped = true; } >
+                        <div class="row">
+                        <div class="col-md-1">
+                            <a style="margin-top:0px; margin-bottom:0px;" class="btn btn-default" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-Installment-@inst.Id" aria-expanded="true" aria-controls="collapse-Installment-@inst.Id">
+                                <i class="fa fa-outdent" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-11">
+                            <h4 class="panel-title TitrShadow fontkheilibozorg text-center">
+                                قسط شماره @inst.IndexNumber | <span id="header-installment-@inst.Id">@BSIActivityManagement.Extensions.HtmlExtensions.InstallmentEnumDisplayNameFor(inst.Status)</span>  |
+                                @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid)
+                                {
+                                    @BSIActivityManagement.Extensions.DisplayExtension.RemainingDays(inst.DueDate, inst.PaymentDate)
+                                }
+                                else
+                                {
+                                    @BSIActivityManagement.Extensions.DisplayExtension.RemainingDays(inst.DueDate, DateTime.Now)
+                                }
+                                @if (inst.CallList.Count() > 0)
+                                {<span>| تعداد تماسها: @inst.CallList.Count()</span> }
+                            </h4>
+                        </div>
+                        </div>
+                        
+                    </div>
+                    <div id="collapse-Installment-@inst.Id" class="panel-collapse collapse @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Unpaid && firstUnPaid) {@Html.Raw("in"); firstUnPaid = false; } " role="tabpanel" aria-labelledby="قسط-@inst.IndexNumber">
+                        <div class="panel-body">
+                            <dl class="dl-horizontal LineSpaceZiad">
+                                <dt>تاریخ سررسید: </dt>
+                                <dd>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(inst.DueDate)</dd>
+                                <dt>
+                                    وضعیت پرداخت: 
+                                </dt>
+                                <dd id="Installment-Status-@inst.Id">
+                                    @BSIActivityManagement.Extensions.HtmlExtensions.InstallmentEnumDisplayNameFor(inst.Status)
+                                </dd>
+                                <dt>
+                                    زمان : 
+                                </dt>
+                                <dd>
+                                    @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid)
+                                    {
+                                        @BSIActivityManagement.Extensions.DisplayExtension.RemainingDays(inst.DueDate, inst.PaymentDate)
+                                    }
+                                    else
+                                    {
+                                        @BSIActivityManagement.Extensions.DisplayExtension.RemainingDays(inst.DueDate, DateTime.Now)
+                                    }
+                                </dd>
+                            </dl>
+                            <hr />
+                            <div class="text-center">
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#Call-Register-Modal-@inst.Id">@inst.IndexNumber - ثبت تماس </button> |
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#Installment-Notification-Modal-@inst.Id">ثبت یادآوری</button> | 
+                                @if (inst.Status == BSIActivityManagement.Enum.InstallmentStatus.Paid)
+                                {
+                                    <a class="btn btn-default" href="#!" id="confirm-btn-@inst.Id" onclick="UnConfirmPayment(@inst.Id)"><i class="fa fa-check"></i>لغو پرداخت</a> }
+                                else
+                                {
+                                    <a class="btn btn-info" href="#!" id="confirm-btn-@inst.Id" onclick="ConfirmPayment(@inst.Id)"><i class="fa fa-check"></i>تایید پرداخت</a>
+                                }
+                            </div>
+                            <hr />
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>کاربر</th>
+                                            <th>زمان تماس</th>
+                                            <th>توضیحات</th>
+                                            <th>شماره تماس</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body-inst-@inst.Id">
+                                        @foreach (var call in inst.CallList)
+                                        {
+                                            <tr>
+                                                <td>@call.User.FirstName @call.User.Lastname</td>
+                                                <td>@BSIActivityManagement.Extensions.DisplayExtension.DateToPersian(call.CallTime)</td>
+                                                <td>@call.Description</td>
+                                                <td>@call.Address.PhoneNumber</td>
+                                                <!-- <td><button type="button" class="btn btn-info" data-toggle="modal" data-target="#Call-Notification-Modal-@call.Id">ثبت یادآوری</button></td>-->
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            <!--Modal-->
+                            <div id="Call-Register-Modal-@inst.Id" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="padding-top:80px;">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">شماره قسط: @inst.IndexNumber</h4>
+                                        </div>
+                                        <div class="modal-body">
+
+                                            <div class="row" style="margin-top:10px;">
+                                                <label class="control-label col-md-4" for="Call-Description-Input-@inst.Id">متن یادآوری: </label>
+                                                <div class="col-md-8">
+                                                    <textarea cols="10" class="form-control" data-val="true" data-val-required="ورود متن مکالمه الزامی است" dir="rtl" id="Call-Description-Input-@inst.Id" name="Call-Description-Input-@inst.Id" placeholder="متن مکالمه" type="text" value=""></textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="Call-Description-Input-@inst.Id" data-valmsg-replace="true"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" style="margin-top:10px;">
+                                                <label for="sel1" class="control-label col-md-4">اطلاعات تماس</label>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" id="Call-Address-Input-@inst.Id">
+                                                        @foreach (var cust in Customer)
+                                                        {
+                                                        foreach (var adr in cust.AddressList)
+                                                        {
+                                                            <option value="@adr.Id">@adr.Customer.FirstName @adr.Customer.Lastname - @adr.PhoneNumber</option>
+                                                        }
+                                                        }
+                                                        @foreach (var referee in Model.RefereeLists)
+                                                        {
+                                                            foreach (var adr in referee.Customer.AddressList)
+                                                            {
+                                                                <option value="@adr.Id">ضامن: @adr.Customer.FirstName @adr.Customer.Lastname - @adr.PhoneNumber</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="#!" onclick="RegisterCall(@inst.Id)" id="Notification-Description-Btn-@inst.Id" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" style="margin-bottom:5px;">ثبت</a> | <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Modal Reg Call -->
+                            <!-- Modal -->
+                            <div id="Installment-Notification-Modal-@inst.Id" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="padding-top:80px;">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">شماره قسط: @inst.IndexNumber</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <label class="control-label col-md-4" for="Notification-Input-@inst.Id">یادآوری در روزهای آینده</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control text-box single-line" data-val="true" data-val-required="ورود تعداد روز الزامی است" dir="ltr" id="Notification-Input-@inst.Id" name="Notification-Input-@inst.Id" placeholder="تعداد روز" type="number" value="" />
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="Notification-Input-@inst.Id" data-valmsg-replace="true"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" style="margin-top:10px;">
+                                                <label class="control-label col-md-4" for="Notification-Description-Input-@inst.Id">متن یادآوری: </label>
+                                                <div class="col-md-8">
+                                                    <textarea cols="10" class="form-control" data-val="true" data-val-required="ورود متن یادآوری الزامی است" dir="rtl" id="Notification-Description-Input-@inst.Id" name="Notification-Description-Input-@inst.Id" placeholder="متن یادآوری" type="text" value=""></textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="Notification-Description-Input-@inst.Id" data-valmsg-replace="true"></span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="#!" onclick="RegisterNotification(@inst.Id)" id="Notification-Description-Btn-@inst.Id" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" style="margin-bottom:5px;">ثبت</a> | <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- End Modal Notification -->
+
+                            <!--
+                            foreach (var call in inst.CallList)
+                            {
+                                <!-- Modal Call Notification-->
+                                <!--
+                                <div id="Call-Notification-Modal-@@call.Id" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
+                                        <!-- Modal content
+                                        <div class="modal-content">
+                                            <div class="modal-header" style="padding-top:80px;">
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <h4 class="modal-title">شماره تماس: @@call.Address.PhoneNumber</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <label class="control-label col-md-4" for="Call-Notification-Input-@@call.Id">یادآوری در روزهای آینده</label>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control text-box single-line" data-val="true" data-val-required="ورود تعداد روز الزامی است" dir="ltr" id="Call-Notification-Input-@@call.Id" name="Call-Notification-Input-@@call.Id" placeholder="تعداد روز" type="number" value="" />
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="Call-Notification-Input-@@call.Id" data-valmsg-replace="true"></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row" style="margin-top:10px;">
+                                                    <label class="control-label col-md-4" for="Call-Notification-Description-Input-@@call.Id">متن یادآوری: </label>
+                                                    <div class="col-md-8">
+                                                        <textarea cols="10" class="form-control" data-val="true" data-val-required="ورود متن یادآوری الزامی است" dir="rtl" id="Call-Notification-Description-Input-@@call.Id" name="Call-Notification-Description-Input-@@call.Id" placeholder="متن یادآوری" type="text" value=""></textarea>
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="Call-Notification-Description-Input-@@call.Id" data-valmsg-replace="true"></span>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="#!" onclick="RegisterCallNotification(@@call.Id)" id="Call-Notification-Description-Btn-@@call.Id" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" style="margin-bottom:5px;">ثبت</a> | <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            <!-- End Modal Notification 
+                            } -->
+                        </div>
+                    </div>
+                </div>
+            }
+            </div>
+        }
+        else
+        {
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                    <h4 class="panel-title">
+                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            هیچ قسطی ثبت نشده است
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                    <div class="panel-body">
+                        اطلاعات مربوط به اقساط و تماس های مرتبط موجود نیست
+                    </div>
+                </div>
+            </div>
+    }
+
+
+
+
+}
+
+<script>
+    function ConfirmPayment(id)
+    {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ConfirmInst","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ InstallmentId: id }),
+            dataType: "json",
+            success: function (result) {
+                $.each(result, function (index, item) {
+                    $('#' + 'Installment-Status-' + item).html('پرداخت شده');
+                    $('#' + 'header-installment-' + item).text('پرداخت شده');
+                    var bt = document.getElementById('confirm-btn-' + item);
+                    bt.textContent = "لغو پرداخت";
+                    bt.className = "btn btn-default";
+                    bt.onclick = function () { UnConfirmPayment(item); };
+                    $('#' + 'collapse-heading-' + item).css('background-color', 'lightgreen');
+                });
+            },
+            error: errorFunc
+        });
+
+    }
+
+
+    function UnConfirmPayment(id) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UnConfirmInst","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ InstallmentId: id }),
+            dataType: "json",
+            success: function (result) {
+                $.each(result, function (index, item) {
+                    $('#' + 'Installment-Status-' + item).html('پرداخت نشده');
+                    $('#' + 'header-installment-' + item).text('پرداخت نشده');
+                    var bt = document.getElementById('confirm-btn-' + item);
+                    bt.textContent = "تایید پرداخت";
+                    bt.className = "btn btn-info";
+                    bt.onclick = function () { ConfirmPayment(item); };
+                    item & 1 ? $('#' + 'collapse-heading-' + item).css('background-color', 'white') : $('#' + 'collapse-heading-' + item).css('background-color', '#f5f5f5');
+                });
+            },
+            error: function(){alert("عملیات ناموفق بود. لطفا توجه کنید لغو پرداخت اقساط فقط توسط رییس امکان پذیر است.")}
+        });
+
+    }
+
+
+    function UpdateLoan(id)
+    {
+        var tbody = document.getElementById('tbody-update-log');
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdateLoan","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ LoanId: id }),
+            dataType: "json",
+            success: function (res) {
+                if(res.Id != 0){
+                    var trtbody = document.createElement('tr');
+                    var s = '<td>' + res.FirstName + '</td><td>' + res.LastName + '</td><td>' + res.ElapsedTime + '</td><td> پایان بررسی </td>';
+                    trtbody.innerHTML = s;
+                    tbody.appendChild(trtbody);
+                    var bt = document.getElementById('update-loan-btn');
+                    bt.textContent = "ثبت شد";
+                    bt.className = "btn btn-success";
+                    bt.onclick = function () {  };
+                } else
+                {
+                    alert(res.Message);
+                }
+            },
+            error: errorFunc
+        });
+
+    }
+
+    function StartFollowUp(id) {
+        var tbody = document.getElementById('tbody-update-log');
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StartFollowUp","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ LoanId: id }),
+            dataType: "json",
+            success: function (res) {
+                if (res.Id != 0) {
+                    var trtbody = document.createElement('tr');
+                    var s = '<td>' + res.FirstName + '</td><td>' + res.LastName + '</td><td>' + res.ElapsedTime + '</td><td> شروع بررسی </td>';
+                    trtbody.innerHTML = s;
+                    tbody.appendChild(trtbody);
+                    var bt = document.getElementById('start-followup-btn');
+                    bt.textContent = "شروع پیگیری";
+                    bt.className = "btn btn-success";
+                    bt.onclick = function () { };
+                } else {
+                    alert(res.Message);
+                }
+            },
+            error: errorFunc
+        });
+
+    }
+
+    function errorFunc(){
+        alert('متاسفانه عملیات انجام نشد. لطفا بعدا دوباره تلاش نمایید');
+    }
+
+    function RegisterReferee(id)
+    {
+        var tbodyr = document.getElementById('table-body-referee');
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RegisterReferee", "Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ LoanId: id, CustomerNumber: $('#Referee-CustomerNumber-Input').val(), Description: $('#Referee-Description-Input').val() }),
+            dataType: "json",
+            success: function (res) {
+                alert(res.Message);
+                if(res.Id != 0){
+                $('#Referee-CustomerNumber-Input').val('');
+                $('#Referee-Description-Input').val('');
+                var trtbody = document.createElement('tr');
+                trtbody.id = 'row-referee-' + res.Id;
+                var s = '<td><a class="btn btn-info" href="/Customer/Index?UnitId=@Html.Raw(UPAObj.Unit.Id)&ProcessId=@Html.Raw(UPAObj.Process.Id)&ActivityId=@Html.Raw(UPAObj.Activity.Id)&CustomerId=' + res.CustomerId + '">' + res.CustomerNumber + '</a></td><td>' + res.FirstName + '</td><td>' + res.LastName + '</td><td>' + res.Description + '</td><td><a href="#!" onclick="RemoveReferee(' + res.Id + ')" id="Remove-Referee-Btn-'+res.Id+'" class="btn btn-danger"><i class="fa fa-remove"></i></a></td>';
+                trtbody.innerHTML = s;
+                tbodyr.appendChild(trtbody);
+                }
+            },
+            error: errorFunc
+        });
+    }
+
+    function RemoveReferee(id)
+    {
+        var RefereeRow = document.getElementById('row-referee-' + id);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RemoveReferee", "Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ RefereeId: id }),
+            dataType: "json",
+            success: function (res) {
+                alert(res.Message);
+                if (res.Id != 0) {
+                    RefereeRow.remove();
+                }
+            },
+            error: errorFunc
+        });
+
+
+    }
+
+    function RegisterNotification(id)
+    {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RegisterInstallmentNotification", "Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ InstallmentId: id, NotificationDays: $('#' + 'Notification-Input-' + id).val(), NotificationDescription:$('#' + 'Notification-Description-Input-' + id).val()  }),
+            dataType: "json",
+            success: function (message) {
+                alert(message);
+                $('#' + 'Notification-Input-' + id).val('');
+                $('#' + 'Notification-Description-Input-' + id).val('');
+            },
+            error: errorFunc
+        });
+    }
+    function errorFunc(){
+        alert('متاسفانه عملیات انجام نشد. لطفا بعدا دوباره تلاش نمایید');
+    }
+
+    function RegisterCallNotification(id) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RegisterCallNotification", "Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ CallId: id, NotificationDays: $('#' + 'Call-Notification-Input-' + id).val(), NotificationDescription: $('#' + 'Call-Notification-Description-Input-' + id).val() }),
+            dataType: "json",
+            success: function (message) {
+                alert(message);
+                $('#' + 'Call-Notification-Input-' + id).val('');
+                $('#' + 'Call-Notification-Description-Input-' + id).val('');
+            },
+            error: errorFunc
+        });
+    }
+    function errorFunc() {
+        alert('متاسفانه عملیات انجام نشد. لطفا بعدا دوباره تلاش نمایید');
+    }
+
+    function RegisterCall(id)
+    {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RegisterCall","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ InstallmentId: id, CallDescription: $('#' + 'Call-Description-Input-' + id).val(), AddressId: $('#' + 'Call-Address-Input-' + id).val() }),
+            dataType: "json",
+            success: function (result) {
+                alert(result.message);
+                $('#' + 'Call-Description-Input-' + id).val('');
+                addcalltotable(result.Id, id);
+            },
+            error: errorFunc
+        });
+    }
+
+    function NotificationSeen(id) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SetNotificationSeen","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ NotificationId: id }),
+            dataType: "json",
+            success: function (res) {
+                alert(res);
+                $("#" + "btn-notification-seen-" + id).addClass('disabled').text('اقدام شد');
+            },
+            error: errorFunc
+        });
+    }
+
+    function addcalltotable(id, instid)
+    {
+        var tbody = document.getElementById('table-body-inst-' + instid);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetInfoOfRegisteredCall","Loan")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ CallId: id }),
+            dataType: "json",
+            success: function (res) {
+                var trtbody = document.createElement('tr');
+                var s = '<td>' + res.Name + '</td><td>' + res.CallTime + '</td><td>' + res.Description + '</td><td>' + res.PhoneNumber + '</td>';
+                trtbody.innerHTML = s;
+                tbody.appendChild(trtbody);
+            },
+                error: errorFunc
+            });
+    }
+
+    function errorFunc(){
+        alert('متاسفانه عملیات انجام نشد. لطفا بعدا دوباره تلاش نمایید');
+    }
+
+</script>

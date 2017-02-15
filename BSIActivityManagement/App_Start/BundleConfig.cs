@@ -34,7 +34,8 @@ namespace BSIActivityManagement
                 "~/Content/font-awesome.min.css",
                 "~/Content/bootstrap-flipped.min.css", 
                 "~/Content/bootstrap-rtl.min.css", 
-                "~/Content/PersianLanguage.css"));
+                "~/Content/PersianLanguage.css",
+                "~/Content/jquery.Bootstrap-PersianDateTimePicker.css"));
             bundles.Add(new Bundle("~/Content/agencycss").Include(
                 "~/Content/agencysite.css",
                 "~/Content/simple-sidebar.css"
@@ -45,7 +46,9 @@ namespace BSIActivityManagement
                 ));
             bundles.Add(new Bundle("~/Scripts/SideBar").Include(
                 "~/Scripts/jquery.menu-aim.js",
-                "~/Scripts/main.js"
+                "~/Scripts/main.js",
+                "~/Scripts/MdBootstrapPersianDateTimePicker/jalaali.js",
+                "~/Scripts/MdBootstrapPersianDateTimePicker/jquery.Bootstrap-PersianDateTimePicker.js"
                 ));
             //System.Web.Optimization.BundleTable.EnableOptimizations = false;
         }

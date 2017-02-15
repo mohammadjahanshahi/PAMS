@@ -189,7 +189,7 @@ namespace BSIActivityManagement.Controllers
             bool resAdd = false;
             if (AddObj.Id == null)
                 return View("Error");
-            var addedActivity = DMLObj.EditActivity(new AMActivity { Id = AddObj.Id.GetValueOrDefault(), Name = AddObj.Name, Description = AddObj.Description, ActivityItems = null, TypeId = AddObj.TypeId, Type = selectedActType }, out resAdd);
+            var addedActivity = DMLObj.EditActivity(new AMActivity { Id = AddObj.Id.GetValueOrDefault(), Name = AddObj.Name, Description = AddObj.Description, TypeId = AddObj.TypeId, Type = selectedActType }, out resAdd);
             if (resAdd && DMLObj.EditActivityRelation(OrgsList, ProcessesList, addedActivity) > 0)
                 return View("Success");
 

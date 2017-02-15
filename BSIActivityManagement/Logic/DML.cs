@@ -8,6 +8,7 @@ using BSIActivityManagement.Models;
 using BSIActivityManagement.ViewModel;
 using AutoMapper;
 using System.IO;
+using BSIActivityManagement.Enum;
 
 namespace BSIActivityManagement.Logic
 {
@@ -600,7 +601,7 @@ namespace BSIActivityManagement.Logic
                 db.Entry(k).State = EntityState.Modified;
                 db.SaveChanges();
                 result = true;
-                return ActivityObj;
+                return k;
             }
             catch(Exception e1)
             {
@@ -918,6 +919,12 @@ namespace BSIActivityManagement.Logic
             return matches.AsEnumerable();
         }
 
+        public IEnumerable<AMUnitOfOrg> GetUnitByIdentity(string UnitIdentity)
+        {
+            return db.AMUnitEnt.Where(m => m.IdentityCode == UnitIdentity);
+        }
+
+
         public AMUnitOfOrg GetUnitById(int unitId)
         {
             return db.AMUnitEnt.Find(unitId);
@@ -981,6 +988,11 @@ namespace BSIActivityManagement.Logic
             return matches.AsEnumerable();
         }
 
+        public IEnumerable<AMUser> SearchUserByUserName(string UserName)
+        {
+            return db.Users.Where(m => m.UserName == UserName).Select(m => m.AMUser);
+        }
+
         public AMAccess GetAccessByAccessKey(string AcKey)
         {
             return db.AMAccessEnt.Where(m => m.AccessKey == AcKey.Trim().ToUpper()).FirstOrDefault();
@@ -1024,6 +1036,7 @@ namespace BSIActivityManagement.Logic
 
         public bool CheckUserTypeAccess(AMAccess Access, AMUserType UserType)
         {
+            if (Access == null || UserType == null) return false;
             if (db.AMUserTypeAccessListEnt.Where(m => m.UserType.Id == UserType.Id && m.Access.Id == Access.Id).Any()) return true;
             return false;
         }
@@ -1053,9 +1066,9 @@ namespace BSIActivityManagement.Logic
                 db.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e1)
             {
-                message = "در مرحله ذخیره اطلاعات در پایگاه داده ها خطایی رخ داده است. متاسفیم که اجرای عملیات با خطا مواجه شده است";
+                message = "در مرحله ذخیره اطلاعات در پایگاه داده ها خطایی رخ داده است. متاسفیم که اجرای عملیات با خطا مواجه شده است" + e1;
                 return false;
             }
         }
@@ -1144,10 +1157,16 @@ namespace BSIActivityManagement.Logic
             AddingObj.ProcessId = defProcess.Id;
             AddingObj.UnitId = Req.UnitId;
             AddingObj.UserId = Req.UserId;
+
+            var countExist = db.AMUserPlaceMentEnt.Count(m => m.UserId == AddingObj.UserId && m.ProcessId == AddingObj.ProcessId && m.UnitId == AddingObj.UnitId);
+
             try
             {
                 db.Entry(Req).State = EntityState.Modified;
+
+                if(countExist == 0)
                 db.AMUserPlaceMentEnt.Add(AddingObj);
+
                 db.SaveChanges();
                 res = true;
                 return AddingObj;
@@ -1225,6 +1244,13 @@ namespace BSIActivityManagement.Logic
                 controller = "Main",
                 tag = "",
                 text = "انتخاب واحد سازمانی"
+            });
+            LinkList.Add(new NavLinkViewModel
+            {
+                action = "Index",
+                controller = "Dashboard",
+                tag = "",
+                text = "داشبورد کاری"
             });
             NavList.Add(new NavViewModel
             {
@@ -1672,6 +1698,15 @@ namespace BSIActivityManagement.Logic
             return false;
         }
 
+        public bool CheckPageParametersForRevision(string ActivityId, string UnitId, string ProcessId, string UserId)
+        {
+            int AmActivityId = 0;
+            Int32.TryParse(ActivityId, out AmActivityId);
+            if (!CheckPageParameters(UnitId, UserId, ProcessId) || AmActivityId == 0 || db.AMActivityEnt.Find(AmActivityId) == null ) return false;
+            return true;
+        }
+
+
         public bool CheckPageParameters(string UnitId, string ItemId, int p = 1)
         {
 
@@ -1681,6 +1716,8 @@ namespace BSIActivityManagement.Logic
                 return false;
             return true;
         }
+
+
 
         public IEnumerable<ActItemTypeGroup> GetActivityItemsByActivityId(int ActivityId)
         {
@@ -1831,7 +1868,7 @@ namespace BSIActivityManagement.Logic
 
         public string GetActivityOrgsByActIdAsString(int ActId)
         {
-            var k = db.AMActProcOrgRelEnt.Where(r => r.ActivityId == ActId).Select(e => e.OrganizationId);
+            var k = db.AMActProcOrgRelEnt.Where(r => r.ActivityId == ActId).Select(e => e.OrganizationId).Distinct();
             string result = "";
             foreach (var s in k)
                 result += s.ToString() + ";";
@@ -1840,12 +1877,1721 @@ namespace BSIActivityManagement.Logic
 
         public string GetActivityProcessesByActIdAsString(int ActId)
         {
-            var k = db.AMActProcOrgRelEnt.Where(r => r.ActivityId == ActId).Select(p => p.ProcessId);
+            var k = db.AMActProcOrgRelEnt.Where(r => r.ActivityId == ActId).Select(p => p.ProcessId).Distinct();
             string result = "";
             foreach (var s in k)
                 result += s.ToString() + ";";
             return result;
         }
+
+        /////////// Revision //////////021-66748675
+
+        public bool AddRevision(AMRevision Revision)
+        {
+            try
+            {
+                Revision.RegDateTime = DateTime.Now;
+                db.AMRevisionEnt.Add(Revision);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IEnumerable<AMRevision> GetRevisionListByRegistrarUserId(int UserId)
+        {
+            return db.AMRevisionEnt.Where(r => r.UserId == UserId);
+        }
+
+        public IEnumerable<AMRevision> GetProcessRevisionListByRegistrarUserId(int UnitId, int ProcessId)
+        {
+            return db.AMRevisionEnt.Where(r => r.UnitId == UnitId && r.ProcessId == ProcessId);
+        }
+
+        public IEnumerable<AMRevision> GetProcessRevisionListByUnitId(int UnitId)
+        {
+            return db.AMRevisionEnt.Where(r => r.UnitId == UnitId);
+        }
+
+        public IEnumerable<AMRevision> GetRevisionListAppliedToMe(int UnitId, int UserId)
+        {
+            AMUser CurrentUser = GetAmUserById(UserId);
+            if (CurrentUser == null) return null;
+            if(CurrentUser.UserTypeId == 4) //  4 = Process Owner, 3 = Unit Manager
+            {
+                var UserProcesses = GetUnitUserProcesses(UnitId, UserId);
+                if(UserProcesses.Count() == 0 || (UserProcesses.Count() == 1 && UserProcesses.FirstOrDefault().Id == 1))
+                {
+                    return db.AMRevisionEnt.Where(r => r.UnitId == UnitId).Where(k=> k.StatusList.Count == 0 || k.StatusList.Where(p=>p.Status < 4 && p.SigningUserId != UserId).Any()).AsEnumerable();
+                }
+                else
+                {
+                    List<AMRevision> MyList = new List<AMRevision>();
+                    var StatList = db.AMRevisionEnt.Where(r => r.UnitId == UnitId).Where(k => k.StatusList.Count == 0 || k.StatusList.Where(p => p.Status < 4 && p.SigningUserId != UserId).Any()).AsEnumerable();
+                    foreach(var s in StatList)
+                    {
+                        if(UserProcesses.Where(p=>p.Id == s.ProcessId).Any())
+                        {
+                            MyList.Add(s);
+                        }
+                    }
+                    return MyList.AsEnumerable();
+                }
+            }
+            else if (CurrentUser.UserTypeId == 3) // Unit Manager
+            {
+                var p1 = db.AMRevisionStatusEnt.Where(p => p.Revision.UnitId == UnitId && p.Status == 2 && p.SigningUserId != UserId).Select(w => w.Revision);
+                var p2Except = p1.Where(k => k.StatusList.Where(p => p.Status > 3).Any()).AsEnumerable();
+                return p1.Except(p2Except);
+            }
+            else if (CurrentUser.UserTypeId == 5) // Manager
+            {
+                var p1 = db.AMRevisionStatusEnt.Where(p => p.Status == 4 && p.SigningUserId != UserId).Select(w => w.Revision);
+                var p2Except = p1.Where(k => k.StatusList.Where(p => p.Status > 5).Any()).AsEnumerable();
+                return p1.Except(p2Except);
+            }
+            else if (CurrentUser.UserTypeId == 6) // Top Manager
+            {
+                var p1 = db.AMRevisionStatusEnt.Where(p => p.Status == 6 && p.SigningUserId != UserId).Select(w => w.Revision);
+                var p2Except = p1.Where(k => k.StatusList.Where(p => p.Status > 7).Any()).AsEnumerable();
+                return p1.Except(p2Except);
+            }
+            else if (CurrentUser.UserTypeId == 8) // Top Manager
+            {
+                var p1 = db.AMRevisionStatusEnt.Where(p => p.Status == 8 && p.SigningUserId != UserId).Select(w => w.Revision);
+                var p2Except = p1.Where(k => k.StatusList.Where(p => p.Status > 9).Any()).AsEnumerable();
+                return p1.Except(p2Except);
+            }
+            return db.AMRevisionEnt.Where(r => r.UnitId == UnitId).Where(k => k.StatusList.Where(p => p.Status < 2 && p.SigningUserId != UserId).Any()).AsEnumerable();
+        }
+        
+       bool AddRevisionStatus(int RevId, int Status, string Description, int UserId)
+        {
+            AMUser CurrentUser = GetAmUserById(UserId);
+            AMRevision CurrentRevision = GetRevisionById(RevId);
+            if (CurrentUser == null || CurrentRevision == null) return false;
+            try
+            {
+                db.AMRevisionStatusEnt.Add(new AMRevisionStatus { Description = Description, Revision = CurrentRevision, RevisionId = RevId, SigningUserId = UserId, User = CurrentUser, StatusDateTime = DateTime.Now, Status = Status });
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool ConfirmRevision(int RevId, int UserId, int UnitId)
+        {
+            AMUser CurrentUser = GetAmUserById(UserId);
+            AMRevision CurrentRevision = GetRevisionById(RevId);
+            if (CurrentUser == null || CurrentRevision == null) return false;
+            bool UnitAccess = CheckUserAccessKeyByUserId("REVISION_CONFIRM_UNIT", UserId.ToString());
+            bool OrgAccess = CheckUserAccessKeyByUserId("REVISION_CONFIRM_ALL", UserId.ToString());
+            bool IsInUnit = VerifyUserUnit(UnitId, UserId);
+            if (!UnitAccess && !OrgAccess)
+                return false;
+            if (UnitAccess && IsInUnit && CurrentUser.UserTypeId == 4 && AddRevisionStatus(RevId, 2, "", UserId)) // Process Owner
+                return true;
+            if (UnitAccess && IsInUnit && CurrentUser.UserTypeId == 3 && AddRevisionStatus(RevId, 4, "", UserId)) // Unit Manager
+                return true;
+            if (OrgAccess && CurrentUser.UserTypeId == 5 && AddRevisionStatus(RevId, 6, "", UserId)) // Manager
+                return true;
+            if (OrgAccess && CurrentUser.UserTypeId == 6 && AddRevisionStatus(RevId, 8, "", UserId)) // Top Manager
+                return true;
+            if (OrgAccess && CurrentUser.UserTypeId == 8 && AddRevisionStatus(RevId, 10, "", UserId)) // CEO
+                return true;
+            return false;
+        }
+
+        public bool RejectRevision(int RevId, int UserId, int UnitId)
+        {
+            AMUser CurrentUser = GetAmUserById(UserId);
+            AMRevision CurrentRevision = GetRevisionById(RevId);
+            if (CurrentUser == null || CurrentRevision == null) return false;
+            bool UnitAccess = CheckUserAccessKeyByUserId("REVISION_CONFIRM_UNIT", UserId.ToString());
+            bool OrgAccess = CheckUserAccessKeyByUserId("REVISION_CONFIRM_ALL", UserId.ToString());
+            bool IsInUnit = VerifyUserUnit(UnitId, UserId);
+            if (!UnitAccess && !OrgAccess)
+                return false;
+            if (UnitAccess && IsInUnit && CurrentUser.UserTypeId == 4 && AddRevisionStatus(RevId, 3, "", UserId)) // Process Owner
+                return true;
+            if (UnitAccess && IsInUnit && CurrentUser.UserTypeId == 3 && AddRevisionStatus(RevId, 5, "", UserId)) // Unit Manager
+                return true;
+            if (OrgAccess && CurrentUser.UserTypeId == 5 && AddRevisionStatus(RevId, 7, "", UserId)) // Manager
+                return true;
+            if (OrgAccess && CurrentUser.UserTypeId == 6 && AddRevisionStatus(RevId, 9, "", UserId)) // Top Manager
+                return true;
+            if (OrgAccess && CurrentUser.UserTypeId == 8 && AddRevisionStatus(RevId, 11, "", UserId)) // CEO
+                return true;
+            return false;
+        }
+
+
+
+        public IEnumerable<AMRevisionStatus> GetRevisionStatusListById(int RevisionId)
+        {
+            return db.AMRevisionStatusEnt.Where(m => m.RevisionId == RevisionId);
+        }
+
+        public AMRevision GetRevisionById (int RevId)
+        {
+            return db.AMRevisionEnt.Find(RevId);
+        }
+
+        /// <summary>
+        /// Get All required parameters for a page having Unit, Process and Activity
+        /// </summary>
+        /// <returns></returns>
+        public bool GetUPAwithNav(string UnitId, string ProcessId, string ActivityId, string UserId, out List<NavViewModel> Nav, out UnitProcessActObjectViewModel UPA)
+        {
+            int CurrentUnit = 0;
+            int CurrrentProcess = 0;
+            int CurrentActivity = 0;
+            int CurrentUser = 0;
+            Int32.TryParse(UnitId, out CurrentUnit);
+            Int32.TryParse(ProcessId, out CurrrentProcess);
+            Int32.TryParse(ActivityId, out CurrentActivity);
+            Int32.TryParse(UserId, out CurrentUser);
+
+            AMUnitOfOrg UnitObj = GetUnitById(CurrentUnit);
+            AMProcess ProcessObj = GetProcessById(CurrrentProcess);
+            AMActivity ActivityObj = GetActivityById(CurrentActivity);
+            Nav = null;
+            UPA = null;
+            if (CurrentUnit == 0 || CurrrentProcess == 0 || CurrentActivity == 0 || CurrentUser == 0 || UnitObj == null || ProcessObj == null || ActivityObj == null || GetAmUserById(CurrentUser) == null || !VerifyUserUnit(CurrentUnit, CurrentUser))
+                return false;
+
+            Nav = GetMainNaviagtion(CurrentUnit);
+            Nav = AddShowActivityNaviagtion(Nav, CurrrentProcess, ProcessObj.Name, CurrentUnit, UnitObj.Name, CurrentActivity, ActivityObj.Name);
+
+            UPA = new UnitProcessActObjectViewModel { Unit = UnitObj, Process = ProcessObj, Activity = ActivityObj };
+
+            return true;
+        }
+
+
+        /////////// Quality Tables Data Manipulation Layer
+
+        public IEnumerable<AMQualityIndex> GetQualityIndexList()
+        {
+            return db.AMQualityIndexEnt;
+        }
+
+        public bool AddQualityIndex(AMQualityIndex IndexObj)
+        {
+            try
+            {
+                db.AMQualityIndexEnt.Add(IndexObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool AddQualityRule(AMQualityRule RuleObj)
+        {
+            try
+            {
+                db.AMQualityRuleEnt.Add(RuleObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public AMQualityIndex GetQualityIndexById(int Id)
+        {
+            return db.AMQualityIndexEnt.Find(Id);
+        }
+
+        public bool EditQualityIndexByObject(AMQualityIndex Obj)
+        {
+            try
+            {
+                db.Entry(Obj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteQualityIndexByObject(AMQualityIndex Obj)
+        {
+            try
+            {
+                db.AMQualityIndexEnt.Remove(Obj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IEnumerable<AMQualityRule> GetQualityRuleListByActivityId(int ActivityId)
+        {
+            return db.AMQualityRuleEnt.Where(m => m.ActivityId == ActivityId);
+        }
+
+        public AMQualityRule GetQualityRuleById(int RuleId)
+        {
+            return db.AMQualityRuleEnt.Find(RuleId);
+        }
+
+
+        public bool DeleteQualityRuleByObject(AMQualityRule Obj)
+        {
+            try
+            {
+                db.AMQualityRuleEnt.Remove(Obj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool AddQualityMileStone(AMQualityMileStone MileStoneObj)
+        {
+            try
+            {
+                db.AMQualityMileStoneEnt.Add(MileStoneObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool EditQualityMileStone(AMQualityMileStone MileStoneObj)
+        {
+            try
+            {
+                db.Entry(MileStoneObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IEnumerable<AMQualityMileStone> GetQualityMileStoneList(int ActivityId, int UnitId)
+        {
+            return db.AMQualityMileStoneEnt.Where(m => m.Rule.ActivityId == ActivityId && m.UnitId == UnitId);
+        }
+
+        public AMQualityMileStone GetQualityMileStoneById(int? MileStoneId)
+        {
+            return db.AMQualityMileStoneEnt.Find(MileStoneId);
+        }
+
+        public AMQualityMileStone GetQualityMileStoneById(int? MileStoneId, int UnitId)
+        {
+            AMQualityMileStone MileStone = db.AMQualityMileStoneEnt.Find(MileStoneId);
+            if (MileStone.UnitId == UnitId) return MileStone;
+            return null;
+
+        }
+
+        public bool RegisterActivityData(RegisterActivityViewModel model)
+        {
+            AMRegisterActivity RegActObj = new AMRegisterActivity
+            {
+                ActivityId = model.ActivityId,
+                Description = model.Description,
+                RegisteringDate = DateTime.Now,
+                UnitId = model.UnitId,
+                UserId = model.UserId
+            };
+
+            try
+            {
+                db.AMRegisterActivityEnt.Add(RegActObj);
+                db.SaveChanges();
+            }
+            catch
+            {
+                return false;
+            }
+            AMActivityData ActDataObj = new AMActivityData
+            {
+                RuleId = model.RuleId,
+                RegisteringActivityId = RegActObj.Id,
+                ActivityData = model.ActivityData
+            };
+            try
+            {
+                db.AMActivityDataEnt.Add(ActDataObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IEnumerable<MileStoneStatusViewModel> GetActivityQualityStatusList(int ActivityId)
+        {
+            List<MileStoneStatusViewModel> MileStoneList = new List<MileStoneStatusViewModel>();
+            var ActivityMileStones = db.AMQualityMileStoneEnt.Where(m => m.Rule.ActivityId == ActivityId);
+            foreach(var item in ActivityMileStones)
+            {
+                MileStoneStatusViewModel model = new MileStoneStatusViewModel{MileStone = item, IsAlive = true};
+
+                if (item.ExpirationDate <= DateTime.Now)
+                {
+                    model.IsAlive = false;
+                    model.RemainingTimePercentage = 0;
+                    model.RemainingTimeStatus = item.ExpirationDate - item.RegistrationDate;
+                }
+                else
+                {
+                    model.RemainingTimeStatus = item.ExpirationDate - DateTime.Now;
+                    model.RemainingTimePercentage = Convert.ToInt32((model.RemainingTimeStatus.TotalDays / (item.ExpirationDate - item.RegistrationDate).TotalDays)*100);
+                }
+
+                var RegisteredDataInDuration = db.AMActivityDataEnt.Where(d => d.RuleId == item.RuleId && d.RegisteringActivity.RegisteringDate > item.RegistrationDate && d.RegisteringActivity.RegisteringDate < item.ExpirationDate).Select(s => s.ActivityData);
+
+
+                if (item.Rule.Index.EnumType == QualityIndexEnum.IncreasingPrice)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Sum();
+                    model.GoalRequiredChange = item.Maximum - item.Minimum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = model.GoalStatus + item.Minimum;
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.DecreasingPrice)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Sum();
+                    model.GoalRequiredChange = item.Minimum - item.Maximum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = item.Minimum - model.GoalStatus;
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.IncreasingAmount)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Count();
+                    model.GoalRequiredChange = item.Maximum - item.Minimum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = model.GoalStatus + item.Minimum;
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.DecreasingAmount)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Count();
+                    model.GoalRequiredChange = item.Minimum - item.Maximum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = item.Minimum - model.GoalStatus;
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.Score && item.Maximum >= item.Minimum)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Average();
+                    model.GoalRequiredChange = item.Maximum - item.Minimum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = new decimal[] { model.GoalStatus, item.Minimum }.Average();
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.Score && item.Maximum < item.Minimum)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Average();
+                    model.GoalRequiredChange = item.Minimum - item.Maximum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = new decimal[] { model.GoalStatus, item.Minimum }.Average();
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.TimeDuration && item.Maximum >= item.Minimum)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Average();
+                    model.GoalRequiredChange = item.Maximum - item.Minimum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = new decimal[] { model.GoalStatus, item.Minimum }.Average();
+                }
+                else if (item.Rule.Index.EnumType == QualityIndexEnum.TimeDuration && item.Maximum < item.Minimum)
+                {
+                    model.GoalStatus = RegisteredDataInDuration.Average();
+                    model.GoalRequiredChange = item.Minimum - item.Maximum;
+                    model.GoalPercentage = Decimal.ToInt32((model.GoalStatus / (model.GoalRequiredChange)) * 100);
+                    model.GoalStatus = new decimal[] { model.GoalStatus, item.Minimum }.Average();
+                }
+                if (model.GoalPercentage > 100) model.GoalPercentage = 100;
+                MileStoneList.Add(model);
+            }
+            
+            return MileStoneList.AsEnumerable();
+            } 
+        ///// Customer ////
+        public bool AddNewCustomer(AMCustomer CustomerObj)
+        {
+            try
+            {
+                CustomerObj.CustomerNumber = AddZero(CustomerObj.CustomerNumber, 10);
+                db.AMCustomerEnt.Add(CustomerObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool AddNewAccount(AMAccount AccountObj, AMCustomer CustomerObj)
+        {
+            try
+            {
+                string str1 = AccountObj.AccountNumber.Substring(0, 2);
+                string str2 = AddZero(AccountObj.AccountNumber.Substring(2), 11);
+                AccountObj.AccountNumber = str1 + str2;
+                db.AMAccountEnt.Add(AccountObj);
+                db.SaveChanges();
+
+                db.AMCustomerAccountEnt.Add(new AMCustomerAccount { AccountId = AccountObj.Id, CustomerId = CustomerObj.Id });
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool AddNewLoan(LoanRegisterationViewModel LoanRegObj, AMCustomer CustomerObj)
+        {
+            try
+            {
+                string str1 = LoanRegObj.LoanNumber.Substring(0, 2);
+                string str2 = AddZero(LoanRegObj.LoanNumber.Substring(2), 11);
+                AMLoan LoanObj = new AMLoan { LoanNumber = str1 + str2, LoanType = LoanRegObj.LoanType, LoanDate = LoanRegObj.LoanDate, LoanTotalAmount = LoanRegObj.LoanTotalAmount, UnitId = LoanRegObj.UnitId };
+                db.AMLoanEnt.Add(LoanObj);
+                db.SaveChanges();
+
+                db.AMCustomerLoanEnt.Add(new AMCustomerLoan { LoantId = LoanObj.Id, CustomerId = CustomerObj.Id });
+                db.SaveChanges();
+
+                if(InsertInstallments(LoanObj, LoanRegObj.InstallmentDuration, LoanRegObj.TotalInstallments))
+                return true;
+            }
+            catch(Exception e1)
+            {
+                string message = e1.Message;
+                return false;
+            }
+            return false;
+        }
+
+        public AMLoan GetLoanById(int? LoanId)
+        {
+            return db.AMLoanEnt.Find(LoanId);
+        }
+
+        public bool InsertInstallments(AMLoan LoanObj, MonthNumbers Duration, int TotalInstallments)
+        {
+            try
+            {
+                decimal InstallmentPrice = LoanObj.LoanTotalAmount / TotalInstallments;
+                int d = 1;
+                for (int k = 1; k <= TotalInstallments; k++)
+                {
+                    d = (int)Duration * k;
+                    DateTime dt = LoanObj.LoanDate.AddMonths(d);
+                    AMInstallment InstallmentObj = new AMInstallment { LoanId = LoanObj.Id, IndexNumber = k, Status = InstallmentStatus.Unpaid, InstallmentAmount = InstallmentPrice, DueDate = dt , PaymentDate = new DateTime(1800, 1, 1, 1 , 1, 1)};
+                    db.AMInstallmentEnt.Add(InstallmentObj);
+                }
+                db.SaveChanges();
+                return true;
+            }
+            catch(Exception e1)
+            {
+                string message = e1.Message;
+                return false;
+            }
+
+        }
+
+
+        public IEnumerable<AMCustomer> GetCustomerByCustomerNumber(string CustomerNumber)
+        {
+            CustomerNumber = AddZero(CustomerNumber, 10);
+            return db.AMCustomerEnt.Where(m => m.CustomerNumber == CustomerNumber);
+        }
+
+        public IEnumerable<AMLoan> GetLoanByLoanNumber(string CustomerNumber)
+        {
+            string str1 = CustomerNumber.Substring(0, 2);
+            string str2 = AddZero(CustomerNumber.Substring(2), 11);
+            return db.AMLoanEnt.Where(m => m.LoanNumber == str1 + str2);
+        }
+
+        public IEnumerable<AMCustomer> GetOtherCustomersByCustomerNumber(string CustomerNumber, int ThisCustomerId)
+        {
+            CustomerNumber = AddZero(CustomerNumber, 10);
+            return db.AMCustomerEnt.Where(m => m.CustomerNumber == CustomerNumber && m.Id != ThisCustomerId);
+        }
+
+
+
+        public AMCustomer GetCustomerById(int? CustomerId)
+        {
+            return db.AMCustomerEnt.Find(CustomerId);
+        }
+
+        public bool EditCustomer(AMCustomer CustomerObj)
+        {
+            try
+            {
+                CustomerObj.CustomerNumber = AddZero(CustomerObj.CustomerNumber, 10);
+                db.Entry(CustomerObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public AMAccount GetAccountById(int? Id)
+        {
+            return db.AMAccountEnt.Find(Id);
+        }
+
+        public bool EditAccount(AMAccount AccountObj)
+        {
+            try
+            {
+                string str1 = AccountObj.AccountNumber.Substring(0, 2);
+                string str2 = AddZero(AccountObj.AccountNumber.Substring(2), 11);
+                AccountObj.AccountNumber = str1 + str2;
+                db.Entry(AccountObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool EditLoan(AMLoan LoanObj)
+        {
+            try
+            {
+                string str1 = LoanObj.LoanNumber.Substring(0, 2);
+                string str2 = AddZero(LoanObj.LoanNumber.Substring(2), 11);
+                LoanObj.LoanNumber = str1 + str2;
+                db.Entry(LoanObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteAccount(AMAccount AccountObj)
+        {
+            try
+            {
+                db.AMAccountEnt.Remove(AccountObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteLoan(AMLoan LoanObj)
+        {
+            try
+            {
+                db.AMLoanEnt.Remove(LoanObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public string AddZero(string Number, int RequiredLength)
+        {
+            if (Number == null)
+                return null;
+
+            if (Number.Length < RequiredLength)
+            {
+                for (int k = Number.Length; k < RequiredLength; k++)
+                    Number = "0" + Number;
+                return Number;
+            }
+            else if (Number.Length > RequiredLength)
+            {
+                return Number.Substring(0, RequiredLength);
+            }
+            else return Number;
+        }
+
+        public AMInstallment GetInstallmentById(int? Id)
+        {
+            return db.AMInstallmentEnt.Find(Id);
+        }
+
+        public IEnumerable<AMInstallment> SetInstallmentsPaid(AMInstallment InstObj, AMUser CurrentUser)
+        {
+            var items = db.AMInstallmentEnt.Where(m => (m.IndexNumber < InstObj.IndexNumber && m.LoanId == InstObj.LoanId) || m.Id == InstObj.Id);
+            foreach (var k in items)
+            {
+                k.PaymentDate = DateTime.Now;
+                k.Status = InstallmentStatus.Paid;
+                db.Entry(k).State = EntityState.Modified;
+                db.AMInstallmentUserLogEnt.Add(new AMInstallmentUserLog { InstallmentId = k.Id, UserId = CurrentUser.Id, CreationDateTime = k.PaymentDate, Action = InstallmentAction.SetAsPaid });
+            }
+            db.SaveChanges();
+            return items;
+        }
+
+        public int[] SetInstallmentsUnPaid(AMInstallment InstObj, AMUser CurrentUser)
+        {
+            var items = db.AMInstallmentEnt.Where(m => (m.IndexNumber > InstObj.IndexNumber && m.LoanId == InstObj.LoanId && m.Status == InstallmentStatus.Paid) || m.Id == InstObj.Id);
+            int[] list = items.Select(m => m.Id).ToArray();
+            foreach (var k in items)
+            {
+                k.PaymentDate = DateTime.Now;
+                k.Status = InstallmentStatus.Unpaid;
+                db.Entry(k).State = EntityState.Modified;
+                db.AMInstallmentUserLogEnt.Add(new AMInstallmentUserLog { InstallmentId = k.Id, UserId = CurrentUser.Id, CreationDateTime = k.PaymentDate, Action = InstallmentAction.SetAsUnpaid });
+            }
+            db.SaveChanges();
+            return list;
+        }
+
+
+
+        public bool SetInstallmentNotification(AMInstallmentNotification NotificationObj, AMUser CurrentUser)
+        {
+            try
+            {
+                db.AMInstallmentNotificationEnt.Add(NotificationObj);
+                db.SaveChanges();
+                db.AMInstallmentNotificationUserLogEnt.Add(new AMInstallmentNotificationUserLog { InstallmentNotificationId = NotificationObj.Id, UserId = CurrentUser.Id, CreationDateTime = DateTime.Now, Action = InstallmentNotificationAction.Create });
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool SetCallNotification(AMCallNotification NotificationObj)
+        {
+            try
+            {
+                db.AMCallNotificationEnt.Add(NotificationObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public AMCustomerAddress GetAddressById(int? id)
+        {
+            return db.AMCustomerAddressEnt.Find(id);
+        }
+
+        public AMCall GetCallById(int? id)
+        {
+            return db.AMCallEnt.Find(id);
+        }
+
+        public AMCall SetCallInformation(AMCall CallObj, out bool res)
+        {
+            try
+            {
+                db.AMCallEnt.Add(CallObj);
+                db.SaveChanges();
+                res = true;
+                return CallObj;
+            }
+            catch
+            {
+                res = false;
+                return CallObj;
+            }
+        }
+
+        public IEnumerable<AMInstallmentNotification> GetLoansWithInstallmentNotification(int UnitId)
+        {
+            return db.AMInstallmentNotificationEnt.Where(m => m.Installment.Loan.UnitId == UnitId && DbFunctions.TruncateTime(m.DueDate) <= DbFunctions.TruncateTime(DateTime.Now) && m.Status == NotificationStatus.Unseen);
+        }
+
+        public IEnumerable<AMCallNotification> GetLoansWithCallNotification(int UnitId)
+        {
+            return db.AMCallNotificationEnt.Where(m => m.Call.Installment.Loan.UnitId == UnitId && DbFunctions.TruncateTime(m.DueDate) <= DbFunctions.TruncateTime(DateTime.Now) && m.Status == NotificationStatus.Unseen);
+        }
+
+        public IEnumerable<AMInstallment> GetLoansWithTodayOverDueDate(int UnitId)
+        {
+            return db.AMInstallmentEnt.Where(m => m.Loan.UnitId == UnitId && m.Status == InstallmentStatus.Unpaid && DbFunctions.TruncateTime(m.DueDate) == DbFunctions.TruncateTime(DateTime.Now)).GroupBy(k => k.LoanId).Select(m => m.FirstOrDefault());
+        }
+
+        public IEnumerable<AMInstallment> GetLoansWithWeekOverDueDate(int UnitId)
+        {
+            DateTime Date1 = DateTime.Now.AddDays(-1);
+            DateTime Date2 = DateTime.Now.AddDays(-8);
+            return db.AMInstallmentEnt.Where(k => k.Loan.UnitId == UnitId && k.Status == InstallmentStatus.Unpaid && DbFunctions.TruncateTime(k.DueDate) < DbFunctions.TruncateTime(Date1) && DbFunctions.TruncateTime(k.DueDate) > DbFunctions.TruncateTime(Date2)).GroupBy(k => k.LoanId).Select(m => m.FirstOrDefault()).Take(100);
+        }
+
+        public IEnumerable<AMInstallment> GetLoansWithMonthOverDueDate(int UnitId)
+        {
+            DateTime Date1 = DateTime.Now.AddDays(-7);
+            DateTime Date2 = DateTime.Now.AddDays(-30);
+            return db.AMInstallmentEnt.Where(k => k.Loan.UnitId == UnitId &&  k.Status == InstallmentStatus.Unpaid && DbFunctions.TruncateTime(k.DueDate) < DbFunctions.TruncateTime(Date1) && DbFunctions.TruncateTime(k.DueDate) > DbFunctions.TruncateTime(Date2)).GroupBy(k => k.LoanId).Select(m => m.FirstOrDefault()).Take(100);
+        }
+
+        public IEnumerable<AMInstallment> GetLoansWithTwoMonthsOverDueDate(int UnitId)
+        {
+            DateTime Date1 = DateTime.Now.AddDays(-29);
+            DateTime Date2 = DateTime.Now.AddDays(-60);
+            return db.AMInstallmentEnt.Where(k => k.Loan.UnitId == UnitId && k.Status == InstallmentStatus.Unpaid && DbFunctions.TruncateTime(k.DueDate) < DbFunctions.TruncateTime(Date1) && DbFunctions.TruncateTime(k.DueDate) > DbFunctions.TruncateTime(Date2)).GroupBy(k => k.LoanId).Select(m => m.FirstOrDefault()).Take(100);
+        }
+
+        public IEnumerable<AMInstallment> GetLoansWithMoreThanTwoMonthsOverDueDate(int UnitId)
+        {
+            DateTime Date1 = DateTime.Now.AddDays(-1);
+            DateTime Date2 = DateTime.Now.AddDays(-59);
+            return db.AMInstallmentEnt.Where(k => k.Loan.UnitId == UnitId && k.Status == InstallmentStatus.Unpaid && DbFunctions.TruncateTime(k.DueDate) < DbFunctions.TruncateTime(Date2)).GroupBy(k => k.LoanId).Select(m => m.FirstOrDefault()).Take(100);
+        }
+
+        public IEnumerable<AMCustomer> GetCustomersByLoanId(int? LoanId)
+        {
+            return db.AMCustomerEnt.Where(m => m.LoanList.Any(k => k.LoantId == LoanId));
+        }
+
+        public AMInstallmentNotification GetInstallmentNotificationById(int? id)
+        {
+            return db.AMInstallmentNotificationEnt.Find(id);
+        }
+
+        public bool SetInstallmentNotificationSeen(AMInstallmentNotification alert, AMUser CurrentUser)
+        {
+            try
+            {
+                alert.Status = NotificationStatus.Seen;
+                db.Entry(alert).State = EntityState.Modified;
+                db.AMInstallmentNotificationUserLogEnt.Add(new AMInstallmentNotificationUserLog { InstallmentNotificationId = alert.Id, UserId = CurrentUser.Id, CreationDateTime = DateTime.Now, Action = InstallmentNotificationAction.MakeAsRead });
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IEnumerable<AMCall> GetUserCallLog(AMUser CurrentUser)
+        {
+            return db.AMCallEnt.Where(m => m.UserId == CurrentUser.Id);
+        }
+
+        public IEnumerable<AMInstallmentNotificationUserLog> GetUserInstallmentNotification(AMUser CurrentUser)
+        {
+            return db.AMInstallmentNotificationUserLogEnt.Where(m => m.UserId == CurrentUser.Id && m.Action == InstallmentNotificationAction.Create);
+        }
+
+        public IEnumerable<AMInstallmentNotificationUserLog> GetUserInstallmentNotificationDone(AMUser CurrentUser)
+        {
+            return db.AMInstallmentNotificationUserLogEnt.Where(m => m.UserId == CurrentUser.Id && m.Action == InstallmentNotificationAction.MakeAsRead);
+        }
+
+        public IEnumerable<AMInstallmentUserLog> GetUserInstallmentStatusLog(AMUser CurrentUser)
+        {
+            return db.AMInstallmentUserLogEnt.Where(m => m.UserId == CurrentUser.Id);
+        }
+
+        public IEnumerable<AMUpdateLoanLog> GetUserLoanUpdateLog(AMUser CurrentUser)
+        {
+            return db.AMUpdateLoanLogEnt.Where(m => m.UserId == CurrentUser.Id);
+        }
+
+        public int GetUserFollowUpScore(AMUser CurrentUser, AMUnitOfOrg CurrentUnit)
+        {
+            return 0;
+        }
+
+        public bool AddNewAddress(AMCustomerAddress AddressObj)
+        {
+            try
+            {
+                
+                db.AMCustomerAddressEnt.Add(AddressObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool EditAddress(AMCustomerAddress AddressObj)
+        {
+            try
+            {
+                db.Entry(AddressObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteAddress(AMCustomerAddress AddressObj)
+        {
+            try
+            {
+                db.AMCustomerAddressEnt.Remove(AddressObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public AMReferee AddNewReferee(AMReferee RefereeObj, out bool res)
+        {
+            try
+            {
+                db.AMRefereeEnt.Add(RefereeObj);
+                db.SaveChanges();
+                res = true;
+                return RefereeObj;
+            }
+            catch
+            {
+                res = false;
+                return RefereeObj;
+            }
+        }
+
+        public AMUpdateLoanLog AddUpdateLoanLog(AMUpdateLoanLog LogObj, out bool res)
+        {
+            try
+            {
+                db.AMUpdateLoanLogEnt.Add(LogObj);
+                db.SaveChanges();
+                res = true;
+                return LogObj;
+            }
+            catch
+            {
+                res = false;
+                return LogObj;
+            }
+        }
+
+        public AMUpdateLoanLog AddStartFollowUpLoanLog(AMUpdateLoanLog LogObj, out bool res)
+        {
+            try
+            {
+                db.AMUpdateLoanLogEnt.Add(LogObj);
+                db.SaveChanges();
+                res = true;
+                return LogObj;
+            }
+            catch
+            {
+                res = false;
+                return LogObj;
+            }
+        }
+
+        public AMReferee GetRefereeById(int? id)
+        {
+            return db.AMRefereeEnt.Find(id);
+        }
+
+        public bool RemoveReferee(AMReferee RefereeObj)
+        {
+            try
+            {
+                db.AMRefereeEnt.Remove(RefereeObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        /////// Conversion From Mizan To BSI
+
+        public IEnumerable<AMCustomerRecordMizan> GetCustomerConversionFailed(int page, int rows)
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Failed).Skip((page - 1) * rows).Take(rows);
+        }
+
+        public IEnumerable<AMLoanRecordMizan> GetLoanConversionFailed(int page, int rows)
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus != ConversionResultStatus.Success || m.ConversionStatus != ConversionResultStatus.NotConverted || m.ConversionStatus != ConversionResultStatus.Warning).Skip((page - 1) * rows).Take(rows);
+        }
+
+
+
+        public IEnumerable<AMCustomerRecordMizan> GetCustomerConversionWarning(int page, int rows)
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Warning).Skip((page - 1) * rows).Take(rows);
+        }
+
+        public IEnumerable<AMLoanRecordMizan> GetLoanConversionWarning(int page, int rows)
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Warning).Skip((page - 1) * rows).Take(rows);
+        }
+
+        public int GetMizanCustomerTotalCount()
+        {
+            return db.AMCustomerRecordMizanEnt.Count();
+        }
+        public int GetMizanCustomerSuccessConvertCount()
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m=>m.ConversionStatus == ConversionResultStatus.Success) .Count();
+        }
+
+        public int GetMizanCustomerFailedConvertCount()
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Failed).Count();
+        }
+
+        public int GetMizanCustomerWarningConvertCount()
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Warning).Count();
+        }
+
+        public int GetMizanCustomerUnConvertedCount()
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.NotConverted).Count();
+        }
+
+        public int GetLoanConvertTotalCount()
+        {
+            return db.AMLoanRecordMizanEnt.Count();
+        }
+        public int GetMizanLaonSuccessConvertCount()
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Success).Count();
+        }
+
+        public int GetMizanLoanWarningConvertCount()
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.Warning).Count();
+        }
+
+        public int GetMizanLoanUnConvertedCount()
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.NotConverted).Count();
+        }
+
+        public int GetMizanLoanFailedConvertCount()
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus != ConversionResultStatus.Success).Where(m=> m.ConversionStatus != ConversionResultStatus.NotConverted).Where(m => m.ConversionStatus != ConversionResultStatus.Warning).Count();
+        }
+
+        public LoanConvertFailureInfoViewModel GetConversionStatistics()
+        {
+            LoanConvertFailureInfoViewModel model = new LoanConvertFailureInfoViewModel();
+            // Just for Branch Code 15
+            var k = db.AMLoanRecordMizanEnt.Where(m=>m.BSIBranchCode == 15).Where(m => m.ConversionStatus != ConversionResultStatus.Success).Where(m => m.ConversionStatus != ConversionResultStatus.NotConverted).Where(m => m.ConversionStatus != ConversionResultStatus.Warning);
+
+            // Uncomment for all branches
+            //var k = db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus != ConversionResultStatus.Success).Where(m => m.ConversionStatus != ConversionResultStatus.NotConverted).Where(m => m.ConversionStatus != ConversionResultStatus.Warning);
+
+            model.AlreadyExist = k.Count(m => m.ConversionStatus == ConversionResultStatus.AlreadyExist);
+            model.BSIBranchError = k.Count(m => m.ConversionStatus == ConversionResultStatus.BSIBranchError);
+            model.DebtorError = k.Count(m => m.ConversionStatus == ConversionResultStatus.DebtorError);
+            model.DebtorRefereeError = k.Count(m => m.ConversionStatus == ConversionResultStatus.DebtorRefereeError);
+            model.Failure = k.Count(m => m.ConversionStatus == ConversionResultStatus.Failed);
+            model.InstallmentCountError = k.Count(m => m.ConversionStatus == ConversionResultStatus.InstallmentCountError);
+            model.InstallmentError = k.Count(m => m.ConversionStatus == ConversionResultStatus.InstallmentError);
+            model.InstallmentPeriodError = k.Count(m => m.ConversionStatus == ConversionResultStatus.InstallmentPeriodError);
+            model.LoanDateError = k.Count(m => m.ConversionStatus == ConversionResultStatus.LoanDateError);
+            model.MizanLoanTypeError = k.Count(m => m.ConversionStatus == ConversionResultStatus.MizanLoanTypeError);
+
+            model.TotalFailed = k.Count();
+
+            return model;
+        }
+        private bool UpdateMizanLoanRecord(AMLoanRecordMizan loanObj)
+        {
+            try
+            {
+                db.Entry(loanObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch(Exception e1)
+            {
+                string message = e1.Message;
+                string message2 = e1.InnerException.Message;
+                return false;
+            }
+        }
+        //Saba = قدیمی
+        private IEnumerable<AMCustomerRecordMizan> GetMizanCustomerBySabaNumber(string SabaNumber, int BranchCode)
+        {
+            var k = db.AMCustomerRecordMizanEnt.Where(m => m.LoanNumber.Trim() + BranchCode.ToString() == SabaNumber.Trim());
+            return k;
+        }
+
+        //Simia = جدید
+        private IEnumerable<AMCustomerRecordMizan> GetMizanCustomerBySimiaNumber(string SimiaNumber)
+        {
+            return db.AMCustomerRecordMizanEnt.Where(m => m.LoanNumber.Trim().Substring(0, m.LoanNumber.Length - 1) == SimiaNumber.Trim());
+        }
+
+        private int ComputeStringDistance(string s, string t)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                if (string.IsNullOrEmpty(t))
+                    return 0;
+                return t.Length;
+            }
+
+            if (string.IsNullOrEmpty(t))
+            {
+                return s.Length;
+            }
+
+            int n = s.Length;
+            int m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // initialize the top and right of the table to 0, 1, 2, ...
+            for (int i = 0; i <= n; d[i, 0] = i++) ;
+            for (int j = 1; j <= m; d[0, j] = j++) ;
+
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+                    int min1 = d[i - 1, j] + 1;
+                    int min2 = d[i, j - 1] + 1;
+                    int min3 = d[i - 1, j - 1] + cost;
+                    d[i, j] = Math.Min(Math.Min(min1, min2), min3);
+                }
+            }
+            return d[n, m];
+        }
+
+        private AMCustomer GetPersonalCustomerByNationalCode(string NationalCode, string PersonalId)
+        {
+            var CustomerPersonalList = db.AMCustomerPersonalEnt.Where(m => m.NationalCode == NationalCode.Trim() && m.PersonalId == PersonalId);
+            return CustomerPersonalList.Count() > 0 ? CustomerPersonalList.FirstOrDefault().Customer:null;    
+        }
+
+        private AMCustomer GetCorporationCustomerByNationalCode(string NationalCode)
+        {
+            var CorporationList = db.AMCorporationMemberEnt.Where(m => m.Corporation.NationalCode == NationalCode && m.MembershipType == CorporationMemberType.AsMain);
+            return CorporationList.Count() > 0 ? CorporationList.FirstOrDefault().Customer : null;
+        }
+        
+        private AMCustomerPersonal AddNewCustomerPersonalInfo(AMCustomerPersonal PersonalObj)
+        {
+            try
+            {
+                db.AMCustomerPersonalEnt.Add(PersonalObj);
+                db.SaveChanges();
+                return PersonalObj;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private AMCorporation AddNewCorporationInfo(AMCorporation CorporationObj)
+        {
+            try
+            {
+                db.AMCorporationEnt.Add(CorporationObj);
+                db.SaveChanges();
+                return CorporationObj;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private AMMizanCustomerConversion AddNewMizanCustomerConversionInfo(AMMizanCustomerConversion ConversionObj)
+        {
+            try
+            {
+                db.AMMizanCustomerConversionEnt.Add(ConversionObj);
+                db.SaveChanges();
+                return ConversionObj;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private AMCustomer AddNewCustomerAndReturn(AMCustomer CustomerObj)
+        {
+            try
+            {
+                CustomerObj.CustomerNumber = AddZero(CustomerObj.CustomerNumber, 10);
+                db.AMCustomerEnt.Add(CustomerObj);
+                db.SaveChanges();
+                return CustomerObj;
+            }
+            catch(Exception e1)
+            {
+                string message = e1.Message;
+                return null;
+            }
+        }
+        private PhoneType GetPhoneTypeFromPhoneNumber(string PhoneNumber)
+        {
+            if (PhoneNumber.Substring(0, 2) == "09")
+                return PhoneType.Mobile;
+            return PhoneType.LandLine;
+        }
+
+        private bool UpdateMizanCustomerRecord(AMCustomerRecordMizan MizanCustomerObj)
+        {
+            try
+            {
+                db.Entry(MizanCustomerObj).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private AMCustomer AddMizanCustomerToDB(AMCustomerRecordMizan MizanCustomer)
+        {
+            try
+            {
+                AMCustomer CustomerPersonalByNationalCodeAndId;
+
+                if (MizanCustomer.IsCorporation == CustomerTypePersonalCorporation.Corporation) // 
+                {
+                    CustomerPersonalByNationalCodeAndId = GetCorporationCustomerByNationalCode(MizanCustomer.NationalCode);
+                }
+                else // Customer Type is Personal
+                {
+                    CustomerPersonalByNationalCodeAndId = GetPersonalCustomerByNationalCode(MizanCustomer.NationalCode, MizanCustomer.PersonalId);
+                }
+                if (CustomerPersonalByNationalCodeAndId == null) //National Code and PersonalId doesn't exist
+                {
+                    AMCustomer Customer = new AMCustomer();
+                    Customer.CustomerNumber = "88" + AddZero(MizanCustomer.Id.ToString(), 8);
+                    Customer.CustomerType = MizanCustomer.IsCorporation == CustomerTypePersonalCorporation.Corporation ? CustomerType.Corporation : CustomerType.Person;
+                    Customer.FirstName = MizanCustomer.FirstName;
+                    Customer.Lastname = MizanCustomer.LastName;
+
+
+                    db.AMCustomerEnt.Add(Customer);
+                    db.SaveChanges();
+
+                    if (Customer.Id > 0)
+                    {
+                        if (MizanCustomer.IsCorporation == CustomerTypePersonalCorporation.Person)
+                        {
+                            AddNewCustomerPersonalInfo(new AMCustomerPersonal { CustomerId = Customer.Id, NationalCode = MizanCustomer.NationalCode, PersonalId = MizanCustomer.PersonalId });
+                        }
+                        else
+                        {
+                            AddNewCorporationInfo(new AMCorporation { NationalCode = MizanCustomer.NationalCode });
+                        }
+                        AddNewMizanCustomerConversionInfo(new AMMizanCustomerConversion { CustomerId = Customer.Id, MizanCustomerId = MizanCustomer.Id });
+                        MizanCustomer.ConversionStatus = ConversionResultStatus.Success;
+                        MizanCustomer.ConversionMessage = "به عنوان مشتری جدید با شماره  " + Customer.CustomerNumber + " ثبت شد";
+                        if (MizanCustomer.PhoneNumber1 != null &&  MizanCustomer.PhoneNumber1.Length > 5) AddNewAddress(new AMCustomerAddress { CustomerId = Customer.Id, PhoneNumber = MizanCustomer.PhoneNumber1, Address = MizanCustomer.Address, PhoneType = GetPhoneTypeFromPhoneNumber(MizanCustomer.PhoneNumber1) });
+                        if (MizanCustomer.PhoneNumber2 != null && MizanCustomer.PhoneNumber2.Length > 5) AddNewAddress(new AMCustomerAddress { CustomerId = Customer.Id, PhoneNumber = MizanCustomer.PhoneNumber2, Address = MizanCustomer.Address, PhoneType = GetPhoneTypeFromPhoneNumber(MizanCustomer.PhoneNumber2) });
+                        if (MizanCustomer.PhoneNumber3 != null && MizanCustomer.PhoneNumber3.Length > 5) AddNewAddress(new AMCustomerAddress { CustomerId = Customer.Id, PhoneNumber = MizanCustomer.PhoneNumber3, Address = MizanCustomer.Address, PhoneType = GetPhoneTypeFromPhoneNumber(MizanCustomer.PhoneNumber3) });
+                        UpdateMizanCustomerRecord(MizanCustomer);
+                        return Customer;
+                    }
+                    MizanCustomer.ConversionStatus = ConversionResultStatus.Failed;
+                    MizanCustomer.ConversionMessage = "در قسمت ایجاد مشتری جدید با خطا مواجه شد";
+                    UpdateMizanCustomerRecord(MizanCustomer);
+                    return null;
+                }
+                MizanCustomer.ConversionStatus = ConversionResultStatus.AlreadyExist;
+                MizanCustomer.ConversionMessage = "اطلاعات مشتری به شماره   " + CustomerPersonalByNationalCodeAndId.CustomerNumber + "موجود بود";
+                UpdateMizanCustomerRecord(MizanCustomer);
+                return CustomerPersonalByNationalCodeAndId;
+            }
+            catch(Exception e1)
+            {
+                MizanCustomer.ConversionStatus = ConversionResultStatus.Failed;
+                MizanCustomer.ConversionMessage = "در قسمت ایجاد مشتری خطای ناشناخته رخ داد: " + e1.Message;
+                UpdateMizanCustomerRecord(MizanCustomer);
+                return null;
+            }
+            }
+
+        private DateTime ConvertStringToDatetime(string StringPersianDate)
+        {
+            var k = StringPersianDate.Split('/');
+            int yr = 0;
+            int mnth = 0;
+            int day = 0;
+
+            Int32.TryParse(k[0], out yr);
+            if (yr == 0) return DateTime.MinValue;
+
+            Int32.TryParse(k[1], out mnth);
+            if (mnth == 0) return DateTime.MinValue;
+
+            Int32.TryParse(k[2], out day);
+            if (day == 0) return DateTime.MinValue;
+
+            if(yr == 1370 && mnth == 1 && day == 1) return DateTime.MinValue;
+
+            System.Globalization.PersianCalendar Taghvim = new System.Globalization.PersianCalendar();
+            return Taghvim.ToDateTime(yr, mnth, day, 1, 1, 1, 1);
+        }
+
+        private LoanType GetLoanTypeFromTypeNumberMizan(int TypeNumber)
+        {
+            if (TypeNumber == 1)
+                return LoanType.Mizan;
+            LoanType lt = LoanType.Mizan;
+            try
+            {
+                lt = (LoanType)TypeNumber;
+                return lt;
+            }
+            catch
+            {
+                return lt;
+            }
+        } 
+
+        private AMLoan AddNewLoanFromMizan(AMLoan LoanObj, AMCustomer Debtor)
+        {
+            try
+            {
+                db.AMLoanEnt.Add(LoanObj);
+                db.SaveChanges();
+
+                db.AMCustomerLoanEnt.Add(new AMCustomerLoan { CustomerId = Debtor.Id, LoantId = LoanObj.Id });
+                db.SaveChanges();
+                return LoanObj;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool CheckExtraInfoExistMizan(LoanExtraInfoType Type, string Value)
+        {
+            var k = db.AMLoanExtraInfoEnt.Where(m => m.ValueType == Type && m.Value == Value);
+            if (k.Count() == 0)
+                return false;
+            return true;
+        }
+
+        private bool AddLoanExtraInfoFromMizan(AMLoanExtraInfo ExtraInfObj)
+        {
+            try
+            {
+                db.AMLoanExtraInfoEnt.Add(ExtraInfObj);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool AddMizanLoanConversionRecord(AMLoan NewLoan, AMLoanRecordMizan MizanLoan)
+        {
+            try
+            {
+                db.AMMizanLoanConversionEnt.Add(new AMMizanLoanConversion { LoanId = NewLoan.Id, MizanLoanId = MizanLoan.Id });
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool InsertInstallmentsMizan(AMLoan LoanObj, int DailyPeriod, int TotalInstallments)
+        {
+            try
+            {
+                decimal InstallmentPrice = LoanObj.LoanTotalAmount / TotalInstallments;
+                int d = 1;
+                for (int k = 1; k <= TotalInstallments; k++)
+                {
+                    d = DailyPeriod * k;
+                    DateTime dt = LoanObj.LoanDate.AddDays(d);
+                    AMInstallment InstallmentObj = new AMInstallment { LoanId = LoanObj.Id, IndexNumber = k, Status = InstallmentStatus.Unpaid, InstallmentAmount = InstallmentPrice, DueDate = dt, PaymentDate = new DateTime(1800, 1, 1, 1, 1, 1) };
+                    db.AMInstallmentEnt.Add(InstallmentObj);
+                }
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception e1)
+            {
+                string message = e1.Message;
+                return false;
+            }
+        }
+
+        public bool DoMizanConvert(out string Message)
+        {
+            int counter = 0;
+            //Just For Branch Code 15
+            var MizanLoanList = db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.NotConverted && m.BSIBranchCode == 15).Take(100);
+            // Uncomment for All branches 
+            //var MizanLoanList = db.AMLoanRecordMizanEnt.Where(m => m.ConversionStatus == ConversionResultStatus.NotConverted);
+
+            IList<AMLoanRecordMizan> BigList = MizanLoanList.ToList();
+            foreach (var MizanRow in BigList)
+            {
+                try
+                {
+                    counter++;
+                    //if((counter % 50000) == 0)
+                    //{
+                    //    step++;
+                    //}
+                    string WarningMessage = "";
+                    var BSIUnitList = db.AMUnitEnt.Where(m => m.IdentityCode.Trim() == MizanRow.BSIBranchCode.ToString());
+                    if (BSIUnitList.Count() == 0)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.BSIBranchError;
+                        EditableLoan.ConversionMessage = "شعبه بانک صادرات موجود نبود";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+                    AMUnitOfOrg BsiUnit = BSIUnitList.FirstOrDefault();
+                    LoanExtraInfoType LoanType = LoanExtraInfoType.ContractNumber; // Just For Checking
+                    string ExtraInfoValue = "";
+                    if (MizanRow.SimiaNumber.Trim().Length == 16) // Simia
+                    {
+                        LoanType = LoanExtraInfoType.SimiaMizan;
+                    }
+                    else if (MizanRow.SimiaNumber.Trim().Length == 0 && MizanRow.SabaNumber.Trim().Length > 2) // Saba
+                    {
+                        LoanType = LoanExtraInfoType.SabaMizan;
+                    }
+                    if (LoanType == LoanExtraInfoType.ContractNumber)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.MizanLoanTypeError;
+                        EditableLoan.ConversionMessage = "نوع تسهیلات شناسایی نشد";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+                    if (MizanRow.TotalInstallmentCount < 1)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.InstallmentCountError;
+                        EditableLoan.ConversionMessage = "تعداد اقساط کمتر از حد انتظار";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+                    if (MizanRow.TotalInstallmentCount > 60)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.InstallmentCountError;
+                        EditableLoan.ConversionMessage = "تعداد اقساط بیشتر از حد انتظار";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+
+                    if (MizanRow.InstallmentPeriod < 10)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.InstallmentPeriodError;
+                        EditableLoan.ConversionMessage = "فاصله اقساط کمتر از حد انتظار";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+
+                    bool LoanNumberExist = false;
+                    if (LoanType == LoanExtraInfoType.SabaMizan)
+                    {
+                        ExtraInfoValue = MizanRow.MizanBranchCode + MizanRow.SabaNumber;
+                        LoanNumberExist = CheckExtraInfoExistMizan(LoanType, MizanRow.MizanBranchCode + MizanRow.SabaNumber);
+                    }
+                    else
+                    {
+                        ExtraInfoValue = MizanRow.SimiaNumber.Substring(0, MizanRow.SimiaNumber.Length - 1);
+                        LoanNumberExist = CheckExtraInfoExistMizan(LoanType, MizanRow.SimiaNumber);
+                    }
+
+                    if (LoanNumberExist)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.Failed;
+                        EditableLoan.ConversionMessage = "شماره قرارداد تکراری است.";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+                    IEnumerable<AMCustomerRecordMizan> LoanCustomerList = null;
+
+                    if (LoanType == LoanExtraInfoType.SabaMizan)
+                    {
+                        LoanCustomerList = GetMizanCustomerBySabaNumber(MizanRow.SabaNumber, MizanRow.MizanBranchCode);
+                    }
+                    else
+                    {
+                        LoanCustomerList = GetMizanCustomerBySimiaNumber(MizanRow.SimiaNumber.Substring(0, MizanRow.SimiaNumber.Length - 1));
+                    }
+
+                    if (LoanCustomerList.Count() == 0)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.DebtorRefereeError;
+                        EditableLoan.ConversionMessage = "هیچ متعهد یا ضامنی با این شماره تسهیلات پیدا نشد";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+                    var DebtorList = LoanCustomerList.Where(m => m.CustomerType == MizanLoanCustomerType.Debtor);
+
+                    if (DebtorList.Count() > 1)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.DebtorError;
+                        EditableLoan.ConversionMessage = "برای این تسهیلات بیشتر از یک نفر به عنوان متعهد پیدا شد";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+                    if (DebtorList.Count() == 0)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.DebtorError;
+                        EditableLoan.ConversionMessage = "برای این تسهیلات هیچ متعهدی پیدا نشد";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+                    AMCustomerRecordMizan Debtor = DebtorList.FirstOrDefault();
+
+                    AMCustomer CustomerDebtor = AddMizanCustomerToDB(Debtor);
+                    if (CustomerDebtor == null)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.Failed;
+                        EditableLoan.ConversionMessage = "افزودن مشتری میزان به پایگاه داده ها انجام نشد";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+
+                    ////////// Here
+                    DateTime NewLoanDate = ConvertStringToDatetime(MizanRow.PaymentDate);
+                    if (NewLoanDate == DateTime.MinValue)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.LoanDateError;
+                        EditableLoan.ConversionMessage = "تاریخ اعطای تسهیلات نادرست است";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+                    string createdLoanNumber = "98" + AddZero(MizanRow.Id.ToString(), 11);
+                    var BsiLoanListFromNewLoanNumber = db.AMLoanEnt.Where(m => m.LoanNumber == createdLoanNumber);
+                    if (BsiLoanListFromNewLoanNumber.Count() > 0)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.Failed;
+                        EditableLoan.ConversionMessage = "این سطر جدول قبلا تبدیل شده است.";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+                    AMLoan NewLoan = new AMLoan();
+                    NewLoan.UnitId = BsiUnit.Id;
+                    NewLoan.LoanNumber = "98" + AddZero(MizanRow.Id.ToString(), 11);
+                    NewLoan.LoanTotalAmount = MizanRow.LoanTotalAmount;
+                    NewLoan.LoanType = GetLoanTypeFromTypeNumberMizan((MizanRow.LoanType)+800);
+                    NewLoan.LoanDate = NewLoanDate;
+                    var AddedLoan = AddNewLoanFromMizan(NewLoan, CustomerDebtor);
+                    if (AddedLoan == null)
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.Failed;
+                        EditableLoan.ConversionMessage = "افزودن تسهیلات به پایگاه داده ها با خطا مواجه شد";
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+
+
+                    //Loan Extra info -> simia itself and saba BranchCodeMizan+SabaNumber
+                    if (!AddLoanExtraInfoFromMizan(new AMLoanExtraInfo { LoanId = AddedLoan.Id, ValueType = LoanType, Value = ExtraInfoValue }))
+                        WarningMessage = WarningMessage + "افزودن شماره قرارداد تسهیلات میزان به عنوان سابقه در جدول سوابق با خطا مواجه شد";
+
+                    if (!AddMizanLoanConversionRecord(AddedLoan, MizanRow))
+                        WarningMessage = WarningMessage + "ارتباط تسهیلات قبلی میزان و جدید در سیستم با خطا مواجه شد. شماره قرارداد: " + AddedLoan.LoanNumber;
+
+                    var RefereeList = LoanCustomerList.Where(m => m.CustomerType == MizanLoanCustomerType.Referee);
+                    IList<AMCustomerRecordMizan> RefereeListIlist = RefereeList.ToList();
+                    foreach (var referee in RefereeListIlist)
+                    {
+                        AMCustomer RefereeCustomer = AddMizanCustomerToDB(referee);
+                        bool resRf = false;
+                        AMReferee CurrentReferee = new AMReferee();
+                        CurrentReferee.CustomerId = RefereeCustomer.Id;
+                        CurrentReferee.LoanId = AddedLoan.Id;
+                        CurrentReferee.Description = "";
+                        AddNewReferee(CurrentReferee, out resRf);
+                    }
+
+                    if (!InsertInstallmentsMizan(AddedLoan, MizanRow.InstallmentPeriod, MizanRow.TotalInstallmentCount))
+                    {
+                        AMLoanRecordMizan EditableLoan = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                        EditableLoan.ConversionStatus = ConversionResultStatus.InstallmentError;
+                        EditableLoan.ConversionMessage = WarningMessage + "قسط بندی با خطا مواجه شد. قرارداد: " + AddedLoan.LoanNumber;
+                        UpdateMizanLoanRecord(EditableLoan);
+                        continue;
+                    }
+
+                    AMLoanRecordMizan EditableLoanFinal = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                    EditableLoanFinal.ConversionStatus = ConversionResultStatus.Success;
+                    EditableLoanFinal.ConversionMessage = "با موفقیت انجام شد. شماره جدید: " + AddedLoan.LoanNumber;
+                    UpdateMizanLoanRecord(EditableLoanFinal);
+                }
+                catch (Exception e1)
+                {
+                    AMLoanRecordMizan EditableLoanFinal2 = db.AMLoanRecordMizanEnt.Find(MizanRow.Id);
+                    EditableLoanFinal2.ConversionStatus = ConversionResultStatus.Failed;
+                    EditableLoanFinal2.ConversionMessage = "خطای پیش بینی نشده اتفاق افتاد: " + e1.Message;
+                    UpdateMizanLoanRecord(EditableLoanFinal2);
+                }
+            }
+            Message = "با موفقیت انجام شد";
+            return true;
+        }
+
+        public bool AddForgotPasswordCode(AMForgotPasswordCode model)
+        {
+            try
+            {
+                db.AMForgotPasswordCodeEnt.Add(model);
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public AMUser GetAmUserFromAspUser(string AspUserId)
+        {
+            return db.Users.Find(AspUserId).AMUser;
+        }
+
+        public ApplicationUser GetAspUserById(string AspUserId)
+        {
+            return db.Users.Find(AspUserId);
+        }
+
+        public IEnumerable<AMForgotPasswordCode> GetForgotCodeByAspUserId(string AspUserId)
+        {
+            ApplicationUser ThisUser = GetAspUserById(AspUserId);
+            if (ThisUser == null) return null;
+            return db.AMForgotPasswordCodeEnt.Where(m => m.UserName == ThisUser.UserName);
+        }
+
+        public bool SetForgotPasswordAsUsed(AMForgotPasswordCode model)
+        {
+            try
+            {
+                db.Entry(model).State = EntityState.Modified;
+                db.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public IEnumerable<AMLoanExtraInfo> GetLoanExtraInfoByQuery(string query)
+        {
+            return db.AMLoanExtraInfoEnt.Where(m => m.Value == query);
+        }
+
+        public IEnumerable<AMLoanRecordMizan> SearchFailedMizanLoan(string query)
+        {
+            return db.AMLoanRecordMizanEnt.Where(m => (int)m.ConversionStatus > 1 && m.SabaNumber == query || m.SimiaNumber == query);
+        }
+
+        //public bool UpdateMizanLoanType()
+        //{
+        //    var k = db.AMLoanEnt.Where(m => (int)m.LoanType > 1);
+        //    IList<AMLoan> IlistK = k.ToList();
+        //    foreach(var r in IlistK)
+        //    {
+        //        AMLoan edited = new AMLoan();
+        //        edited = r;
+        //        try
+        //        {
+        //            edited.LoanType = (LoanType)(r.LoanType + 800);
+        //            db.Entry(edited).State = EntityState.Modified;
+        //            db.SaveChanges();
+        //        }
+        //        catch(Exception e1)
+        //        {
+        //            string message = e1.Message;
+        //            return false;
+        //        }
+
+        //    }
+        //    return true;
+        //}
 
 
 

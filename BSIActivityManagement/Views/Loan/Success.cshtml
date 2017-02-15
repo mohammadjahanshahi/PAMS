@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "انجام موفق عملیات";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    BSIActivityManagement.ViewModel.UnitProcessActObjectViewModel UPAObj = ViewBag.UPA;
+    BSIActivityManagement.DAL.AMCustomer Customer = ViewBag.Customer;
+}
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = UPAObj.Activity.Type.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @UPAObj.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @UPAObj.Activity.Name در فرآیند <span class="FontKheiliBozorg title-bold">@UPAObj.Process.Name</span> از @UPAObj.Unit.Name
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Index", "InstallmentsFollowUp", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+@using (Html.BeginForm("Index","Customer"))
+{
+    <div class="form-horizontal text-center">
+        <div>
+            <hr />
+            <h3 class="text-center BTitrBold TitrShadow">عملیات با موفقیت انجام شد.</h3>
+            <hr />
+        </div>
+        <input type="submit" value="ادامه ثبت اطلاعات مشتری" class="btn btn-default BTitrBold FontKoochik box-btn-shadow" style="margin-bottom:5px;" /> | <a href="@Url.Action("New", "BankAccount", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id, CustomerId = Customer.Id })" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition" style="margin-bottom:5px;">ثبت حساب جدید</a> | <a href="@Url.Action("Index", "InstallmentsFollowUp", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition" style="margin-bottom:5px;">بازگشت</a>
+        @Html.Hidden("CustomerId", Customer.Id)
+        @Html.Hidden("CustomerNumber", Customer.CustomerNumber)
+        @Html.Hidden("UnitId", UPAObj.Unit.Id)
+        @Html.Hidden("ProcessId", UPAObj.Process.Id)
+        @Html.Hidden("ActivityId", UPAObj.Activity.Id)
+    </div>
+}

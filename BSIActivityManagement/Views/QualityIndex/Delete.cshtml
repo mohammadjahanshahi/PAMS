@@ -1,0 +1,42 @@
+﻿@model BSIActivityManagement.DAL.AMQualityIndex
+
+@{
+    ViewBag.Title = "حذف شاخص کیفیت";
+    Layout = "~/Views/Shared/_PersianLayoutLogout.cshtml";
+}
+
+<h2>حذف</h2>
+
+<h3>آیا برای حذف این شاخص مطمین هستید؟</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title):
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+            <hr />
+        </dd>
+        
+        <dt>
+            @Html.DisplayNameFor(model => model.EnumType):
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EnumType)
+            <hr />
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="حذف" class="btn btn-default" /> |
+            <a href="@Url.Action("Index","sysadmin")#QualityIndex" class="btn btn-default">بازگشت</a> 
+        </div>
+    }
+</div>

@@ -21,7 +21,7 @@ namespace BSIActivityManagement.Controllers
             Int32.TryParse(UnitId, out AmUnitId);
             if (AmUserId == 0 || AmUnitId == 0)
             {
-                ViewBag.Message = "پارمترهای صفحه نادرست است.";
+                ViewBag.Message = "پارامترهای صفحه نادرست است.";
                 return View("Error");
             }
                 
@@ -81,8 +81,5 @@ namespace BSIActivityManagement.Controllers
                 return RedirectToAction("Index", new { UnitId = currentUnitId });
             return View("Error");
         }
-
-
-
     }
 }

@@ -21,12 +21,12 @@ namespace BSIActivityManagement.Controllers
         }
         public ActionResult Search(string AMquery)
         {
-            var keywordlist = AMquery.Trim().Split(' ', ';', ',', '+').Where(str => str.Length >= 1);
+            //var keywordlist = AMquery.Trim().Split(' ', ';', ',', '+').Where(str => str.Length >= 1);
             ViewBag.currentQuery = AMquery;
             List<NavViewModel> Nav = DmlObj.GetLogoutNaviagtion();
             Nav = DmlObj.AddUnitNaviagtion(Nav);
             ViewBag.Nav = Nav.AsEnumerable();
-            return View(DmlObj.SearchUnitByKeyWords(keywordlist));
+            return View(DmlObj.GetUnitByIdentity(AMquery));
         }
         public ActionResult Add(string UnitId)
         {

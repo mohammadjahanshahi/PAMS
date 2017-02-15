@@ -6,7 +6,7 @@
 }
 
 <div class="jumbotron">
-    <div class="row">
+    <div class="row headerjumb">
         <div class="col-md-4">
             <div class="panel panel-default LinkPanel main-panel-circle">
                 <div class="panel-body LinkPanelBody main-panel-circle">
@@ -26,8 +26,27 @@
             </p>
         </div>
     </div>
-    <a style="position:absolute;left:10px;" href="@Url.Action("ProcessActivities", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+    <div class="row" style="padding-top:8px;">
+        <div class="col-md-6 text-center">
+            <a title="ثبت انجام فعالیت" class="btn btn-default box-btn-shadow" href="@Url.Action("Register", "ActivityRegistration", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })">ورود به زیر سیستم <i class="fa fa-wpforms improveicon"></i></a>
+            
+            @*<a title="اقدام پیشگیرانه" class="btn btn-default" href="@Url.Action("ProcessActivities", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-fire-extinguisher actionicon"></i></a>
+            <a title="پروژه بهبود" class="btn btn-default" href="@Url.Action("ProcessActivities", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-magic actionicon"></i></a>*@
+        </div>
+        <div class="col-md-6 text-center">
+            @*@if (Model.CreateMileStoneAccess)
+            {
+                <a title="افزودن هدف کیفیت" class="btn btn-default btn-circle" href="@Url.Action("Create", "QualityMileStone", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })"><i class="fa fa-2x fa-flag improveicon"></i></a>
+                <a title="لیست اهداف کیفیت" class="btn btn-default btn-circle" href="@Url.Action("Index", "QualityMileStone", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })"><i class="fa fa-2x fa-signal improveicon"></i></a>
+            }*@
+            <a title="اقدام اصلاحی" class="btn btn-default" href="@Url.Action("New", "Revision", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id, ActivityId = Model.Activity.Id })">ثبت اقدام اصلاحی <i class="fa fa fa-scissors actionicon"></i></a>
+            <a title="مشاهده وضعیت فعلی" class="btn btn-default" href="@Url.Action("Index", "ActivityRegistration", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id , ActivityId = Model.Activity.Id})">مشاهده وضعیت کیفیت <i class="fa fa fa-eye improveicon"></i></a>
+
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("ProcessActivities", "Main", new {UnitId = Model.Unit.Id, ProcessId = Model.Process.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
 </div>
+
 @if (Model.ActivityItemGropus.Count() == 0)
 {
     <p class="text-center">

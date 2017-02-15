@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewBag.Title = "نام کاربری موجود نیست";
+    Layout = "~/Views/Shared/_PersianLayoutLogout.cshtml";
+}
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage", "Home", new { id =  1})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    مدیریت کلمه عبور کاربران
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                جستجوی نام کاربر   <span class="FontKheiliBozorg title-bold">نا موفق  </span> بود و کاربر شناسایی نشد
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("ForgotPassword", "Account")"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+<hr />
+
+<p class="text-center text-danger">
+    نام کاربری شناسایی نشد! لطفا مجددا تلاش نمایید
+</p>
+<a class="btn btn-default box-btn-shadow" href="@Url.Action("ForgotPassword", "Account")"> بازگشت </a>

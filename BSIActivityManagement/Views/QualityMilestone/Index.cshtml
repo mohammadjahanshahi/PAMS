@@ -1,0 +1,56 @@
+﻿@model IEnumerable<BSIActivityManagement.DAL.AMQualityMileStone>
+
+@{
+    ViewBag.Title = "لیست اهداف کیفیت";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    ViewBag.Nav = ViewBag.QualityNavigation;
+    BSIActivityManagement.ViewModel.UnitProcessActViewModel UnPrAct = ViewBag.PageParams;
+}
+
+<h2>اهداف کیفیت فعالیت</h2>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Minimum)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Maximum)
+        </th>
+        <th>
+
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Minimum)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Maximum)
+        </td>
+        <td>
+            <a class="transition" href="@Url.Action("Edit","QualityMileStone",new {Id = item.Id, ActivityId = UnPrAct.A, UnitId = UnPrAct.U, ProcessId = UnPrAct.P })"><i class="fa fa-edit fa-fw fa-2x"></i></a>
+        </td>
+    </tr>
+}
+
+</table>
+
+<div>
+    <a class="btn btn-default" href="@Url.Action("ShowActivity","Main", new {ActivityId = UnPrAct.A, ProcessId = UnPrAct.P, UnitId = UnPrAct.U })"> بازگشت </a>
+</div>

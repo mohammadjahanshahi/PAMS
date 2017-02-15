@@ -1,0 +1,52 @@
+﻿@model BSIActivityManagement.DAL.AMAccount
+
+@{
+    ViewBag.Title = "حذف حساب";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    BSIActivityManagement.ViewModel.UnitProcessActObjectViewModel UPAObj = ViewBag.UPA;
+}
+
+
+<div class="jumbotron">
+    <div class="row headerjumb">
+        <div class="col-md-4">
+            <div class="panel panel-default LinkPanel main-panel-circle">
+                <div class="panel-body LinkPanelBody main-panel-circle">
+                    <img class="Image-Link-250 img-circle" src="@Url.Action("GetImage","Home",new { id = UPAObj.Activity.Type.Image.Id})" />
+                </div>
+                <div class="panel-footer BMitra text-center TitrShadow footer-header  panel-circle  main-panel-circle">
+                    @UPAObj.Activity.Type.Name
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
+            <h2 class="BTitrBold TitrShadow fontkheilibozorg text-center">
+                @UPAObj.Activity.Name در فرآیند <span class="FontKheiliBozorg title-bold">@UPAObj.Process.Name</span> از @UPAObj.Unit.Name
+            </h2><hr style="color:black;" />
+            <h3 class="text-center BTitrBold TitrShadow">@ViewBag.Title</h3>
+            <hr />
+        </div>
+    </div>
+    <a style="position:absolute;left:10px;top:10px;" href="@Url.Action("Index", "InstallmentsFollowUp", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })"><i class="fa fa-2x fa-arrow-circle-left"></i></a>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">آیا از حذف حساب با مشخصات زیر اطمینان دارید؟</div>
+    <div class="panel-body">
+        <dl class="dl-horizontal LineSpaceZiad">
+            <dt>شماره حساب: </dt>
+            <dd>@Model.AccountNumber</dd>
+            <dt>نوع حساب: </dt>
+            <dd>@BSIActivityManagement.Extensions.HtmlExtensions.AccountEnumDisplayNameFor(Model.AccountType)</dd>
+        </dl>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-actions no-color">
+                <input type="submit" value="حذف شود" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition" /> | <a href="@Url.Action("Index", "Customer", new {UnitId = UPAObj.Unit.Id, ProcessId = UPAObj.Process.Id, ActivityId = UPAObj.Activity.Id })" class="btn btn-default BTitrBold FontKoochik box-btn-shadow transition">انصراف</a>
+            </div>
+        }
+    </div>
+</div>
+
+    

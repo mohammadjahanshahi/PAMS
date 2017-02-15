@@ -1,0 +1,65 @@
+﻿@model BSIActivityManagement.DAL.AMQualityMileStone
+
+@{
+    ViewBag.Title = "ویرایش";
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+    ViewBag.Nav = ViewBag.QualityNavigation;
+    BSIActivityManagement.ViewModel.UnitProcessActViewModel UnPrAct = ViewBag.PageParams;
+}
+
+<h2>ویرایش هدف کیفیت</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RuleId, "قانون کیفیت", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("RuleId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.RuleId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @Html.Hidden("UnitId", UnPrAct.U)
+        @Html.Hidden("ProcessId", UnPrAct.P)
+        @Html.Hidden("ActivitiyId", UnPrAct.A)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @Html.Hidden("UserId", Model.UserId)
+        @Html.Hidden("RegistrationDate", Model.RegistrationDate)
+        @Html.Hidden("ExpirationDate", Model.ExpirationDate)
+        @Html.HiddenFor(model => model.Maximum)
+        @Html.HiddenFor(model => model.Minimum)
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="ویرایش" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    <a class="btn btn-default" href="@Url.Action("ShowActivity","Main", new {ActivityId = UnPrAct.A, ProcessId = UnPrAct.P, UnitId = UnPrAct.U })"> بازگشت </a>
+</div>

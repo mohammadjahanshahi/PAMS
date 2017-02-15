@@ -58,5 +58,56 @@ namespace BSIActivityManagement.Models
         public virtual DbSet<AMAccess> AMAccessEnt { get; set; }
         public virtual DbSet<AMUserPlacement> AMUserPlaceMentEnt { get; set; }
         public virtual DbSet<AMUserPlacementReq> AMUserPlacementReqEnt { get; set; }
+        ///
+        /// Revisioning and PDCA Cycle Tables
+        /// 
+        public virtual DbSet<AMRevision> AMRevisionEnt { get; set; }
+        public virtual DbSet<AMRevisionStatus> AMRevisionStatusEnt { get; set; }
+
+        ///
+        /// Quality Data Registering
+        ///
+        public virtual DbSet<AMQualityIndex> AMQualityIndexEnt { get; set; }
+        public virtual DbSet<AMQualityRule> AMQualityRuleEnt { get; set; }
+        public virtual DbSet<AMQualityMileStone> AMQualityMileStoneEnt { get; set; }
+        public virtual DbSet<AMRegisterActivity> AMRegisterActivityEnt { get; set; }
+        public virtual DbSet<AMActivityData> AMActivityDataEnt { get; set; }
+
+        ///
+        /// Loan and Account Management
+        ///
+
+        public virtual DbSet<AMCustomer> AMCustomerEnt { get; set; }
+        public virtual DbSet<AMAccount> AMAccountEnt { get; set; }
+        public virtual DbSet<AMCustomerAccount> AMCustomerAccountEnt { get; set; }
+        public virtual DbSet<AMCustomerAddress> AMCustomerAddressEnt { get; set; }
+        public virtual DbSet<AMLoan> AMLoanEnt { get; set; }
+        public virtual DbSet<AMReferee> AMRefereeEnt { get; set; }
+        public virtual DbSet<AMInstallment> AMInstallmentEnt { get; set; }
+        public virtual DbSet<AMCall> AMCallEnt { get; set; }
+        public virtual DbSet<AMInstallmentNotification> AMInstallmentNotificationEnt { get; set; }
+        public virtual DbSet<AMCallNotification> AMCallNotificationEnt { get; set; }
+        public virtual DbSet<AMCustomerLoan> AMCustomerLoanEnt { get; set; }
+        public virtual DbSet<AMInstallmentUserLog> AMInstallmentUserLogEnt { get; set; }
+        public virtual DbSet<AMInstallmentNotificationUserLog> AMInstallmentNotificationUserLogEnt { get; set; }
+        public virtual DbSet<AMUpdateLoanLog> AMUpdateLoanLogEnt { get; set; }
+
+
+        ///Personal And Corporation
+        ///
+        public virtual DbSet<AMCustomerPersonal> AMCustomerPersonalEnt { get; set; }
+        public virtual DbSet<AMCorporation> AMCorporationEnt { get; set; }
+        public virtual DbSet<AMCorporationMember> AMCorporationMemberEnt { get; set; }
+
+        ///Mizan Customer and Loan Tables
+        public virtual DbSet<AMCustomerRecordMizan> AMCustomerRecordMizanEnt { get; set; }
+        public virtual DbSet<AMLoanRecordMizan> AMLoanRecordMizanEnt { get; set; }
+        public virtual DbSet<AMMizanCustomerConversion> AMMizanCustomerConversionEnt { get; set; }
+        public virtual DbSet<AMMizanLoanConversion> AMMizanLoanConversionEnt { get; set; }
+        public virtual DbSet<AMLoanExtraInfo> AMLoanExtraInfoEnt { get; set; }
+
+        public virtual DbSet<AMForgotPasswordCode> AMForgotPasswordCodeEnt { get; set; }
+        
+
     }
 }

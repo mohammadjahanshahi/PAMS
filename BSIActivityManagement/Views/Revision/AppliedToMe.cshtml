@@ -1,0 +1,98 @@
+﻿@model IEnumerable<BSIActivityManagement.ViewModel.IndexRevisionFullViewModel>
+@{
+    ViewBag.Title = "مشاهده اقدامات اصلاحی مورد نیاز به بررسی";
+    ViewBag.Nav = ViewBag.Navigation;
+    Layout = "~/Views/Shared/_PersianLayoutLogin.cshtml";
+}
+
+<h2 class="text-center BTitrBold TitrShadow">لیست اقدامات اصلاحی مورد نیاز به بررسی</h2>
+<hr />
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    شماره ارجاع
+                </th>
+                <th>
+                    تاریخ
+                </th>
+                <th>
+                    نام فعالیت
+                </th>
+                <th>
+                    عنوان
+                </th>
+                <th>
+                    آخرین وضعیت
+                </th>
+                <th>
+                  نمایش  
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var rev in Model)
+            {
+                string classstatus = "RevisionStatusColor_" + rev.LevelStatus;
+
+                    <tr class="classstatus">
+                    <td> 
+                        @rev.Revision.Id
+                    </td>
+                    <td>
+                       @if (rev.Days > 0) { Html.Raw(rev.Days + "روز پیش"); } else if (rev.Hours > 0) { Html.Raw(rev.Hours + "ساعت پیش"); } else { Html.Raw("کمتر از یکساعت پیش"); } @rev.PersianDate.DateYr/@rev.PersianDate.DateMM/@rev.PersianDate.DateDD - @rev.PersianDate.DateHR:@rev.PersianDate.DateMI:@rev.PersianDate.DateSE
+                    </td>
+                    <td>
+                        @rev.Revision.Activity.Name
+                    </td>
+                    <td>
+                        @if (@rev.Revision.ConflictDescription.Length > 100)
+                        {
+                            @Html.Raw(rev.Revision.ConflictDescription.Substring(0, 100) + "...");
+                        }
+                        else
+                        {
+                            @Html.Raw(rev.Revision.ConflictDescription);
+                        }
+
+                    </td>
+                    <td>
+                        @Html.ActionLink(rev.CurrentStatus, "History", new { RevisionId = rev.Revision.Id, UnitId = ViewBag.CurrentUnitId })
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#rev_@rev.Revision.Id">نمایش</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@foreach (var rev in Model)
+{
+    <div id="rev_@rev.Revision.Id" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <br /><hr />
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-center BTitrBold">@rev.Revision.Activity.Name</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="LineSpaceZiad">شرح عدم انطباق: <br /><section class="FontBozorg BMitra">@rev.Revision.ConflictDescription</section></p><hr />
+                    <p class="LineSpaceZiad">ریشه یابی عدم انطباق: <br /><section class="FontBozorg BMitra">@rev.Revision.ConflictSource</section></p><hr />
+                    <p class="LineSpaceZiad">اقدام اصلاحی پیشنهادی: <br /><section class="FontBozorg BMitra">@rev.Revision.ConflictSolution</section></p>
+                </div>
+                <div class="modal-footer">
+                    <a href="@Url.Action("Confirm",new {UnitId = ViewBag.CurrentUnitId , RevisionId = rev.Revision.Id })" class="btn btn-success">تایید</a> | <a href="@Url.Action("Reject",new { UnitId = ViewBag.CurrentUnitId ,RevisionId = rev.Revision.Id })" class="btn btn-danger">عدم تایید</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">انصراف</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+

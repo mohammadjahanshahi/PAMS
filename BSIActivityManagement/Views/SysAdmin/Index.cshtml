@@ -1,6 +1,6 @@
 ﻿@model BSIActivityManagement.ViewModel.SysAdminViewModel
 @{
-    ViewBag.Title = "Add";
+    ViewBag.Title = "کنترل پنل وبسایت";
     Layout = "~/Views/Shared/_PersianLayout.cshtml";
 }
 
@@ -231,6 +231,64 @@
     </div>
 </div>
 <hr />
+<h2 id="QualityIndex" class="text-center BTitrBold TitrShadow">شاخص های کیفیت</h2>
+<hr />
+<div class="table-responsive">
+    <table class="table">
+       <thead>
+           <tr>
+               <td>
+                   شماره ارجاع
+               </td>
+               <td>
+                   عنوان
+               </td>
+               <td>
+                   نوع شاخص
+               </td>
+               <td>
+                   ویرایش
+               </td>
+               <td>
+                   حذف
+               </td>
+           </tr>
+       </thead> 
+        <tbody>
+           @foreach (var q in Model.QualityIndexArray)
+           {
+            <tr>
+                <td>
+                    @q.Id
+                </td>
+                <td>
+                    @q.Title
+                </td>
+                <td>
+                    @q.EnumType
+                </td>
+                <td>
+                    <a class="transition" href="@Url.Action("Edit","QualityIndex",new {Id = q.Id })"><i class="fa fa-edit fa-fw fa-2x"></i></a> 
+                </td>
+                <td>
+                    <a class="transition" href="@Url.Action("Delete","QualityIndex",new {Id = q.Id })"><i class="fa fa-trash-o fa-fw fa-2x"></i></a>
+                </td>
+            </tr>
+           }
+            <tr>
+                <td>
+                   <a class="btn btn-success" href="@Url.Action("Create","QualityIndex")">
+                       افزودن  <i class="fa fa-plus fa-fw fa-2x"></i>
+                   </a>
+                </td>
+                <td>
+
+                </td>
+                <td></td><td></td><td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 <p class="BMitra FontBozorg LineSpaceZiad LineTaraz">
 
 </p>
